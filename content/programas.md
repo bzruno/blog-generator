@@ -12,9 +12,9 @@ Para fazer downloads eu uso diversos programas.
 
 ![DATA](/images/datawojak.png)
 
-### [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+### yt-dlp
 
-yt-dlp é um downloader de áudio/vídeo de linha de comando rico em recursos, com suporte para milhares de sites.
+O [yt-dlp](https://github.com/yt-dlp/yt-dlp) é um downloader de áudio/vídeo de linha de comando rico em recursos, com suporte para milhares de sites.
 
 ### [gallery-dl](https://github.com/mikf/gallery-dl)
 

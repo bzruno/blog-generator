@@ -6,13 +6,16 @@
 <div class="article-meta">
   <div>Publicado em: {{ formatted_date }}</div>
   <div>
-    Categoria: {% if category %}
-    {% for cat in category.split(",") %}
-    <a id="tag_{{ cat.strip() | normalize }}" href="/categorias/{{ cat.strip() | normalize }}">
-      {{ cat.strip() }}
-    </a>{% if not loop.last %}, {% endif %}
-    {% endfor %}
-    {% else %}Sem Categoria{% endif %}
+    Categoria: 
+    {% if category %}
+      {% for cat in category.split(",") %}
+        <a id="tag_{{ cat.strip() | normalize }}" href="/categorias/{{ cat.strip() | normalize }}">
+          {{ cat.strip() }}
+        </a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    {% else %}
+      Sem Categoria
+    {% endif %}
   </div>
   {% if series %}
   <div>
@@ -38,12 +41,12 @@
 
 <nav class="article-navigation">
   <div class="nav-previous">
-    {% if previous and previous.url %}
+    {% if previous.title %}
     <a href="{{ previous.url }}">← {{ previous.title }}</a>
     {% endif %}
   </div>
   <div class="nav-next">
-    {% if next and next.url %}
+    {% if next.title %}
     <a href="{{ next.url }}">{{ next.title }} →</a>
     {% endif %}
   </div>

@@ -23,7 +23,7 @@ def render(categories: List[str], posts: List[Dict[str, str]], content: str = ""
     
     # Gera a lista HTML com data no formato DD - MMM - YYYY
     items = [
-        f'<li><span class="article-date">{p["formatted_date"]}</span> - <a href="/{p["output"]}">{p["title"]}</a></li>'
+        f'<li><span class="article-date">{p["formatted_date"]}</span> - <a href="{p["url"]}">{p["title"]}</a></li>'
         for p in sorted_articles
     ]
     return f'<ul class="article-list">{"".join(items)}{content}</ul>'
