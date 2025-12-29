@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - Meu Blog{% endblock %}
+{% block content %}
+<h1><a href="/">{{ title }}</a></h1>
+
+<div class="article-meta">
+  <div>Publicado em: {{ formatted_date }}</div>
+  <div>
+    Categoria: {% if category %}
+    {% for cat in category.split(",") %}
+    <a id="tag_{{ cat.strip() | normalize }}" href="/categorias/{{ cat.strip() | normalize }}">
+      {{ cat.strip() }}
+    </a>{% if not loop.last %}, {% endif %}
+    {% endfor %}
+    {% else %}Sem Categoria{% endif %}
+  </div>
+  {% if series %}
+  <div>
+    Série: <a id="tag_{{ series | normalize }}" href="/series/{{ series | normalize }}">{{ series }}</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if toc %}
+<div class="toc">
+  <h2>Sumário</h2>
+  <ul class="toc-list">
+    {% for item in toc %}
+    <li class="toc-{{ item.level }}">
+      <a href="#{{ item.id }}">{{ item.number }} {{ item.text }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{{ content | safe }}
+
+<nav class="article-navigation">
+  <div class="nav-previous">
+    {% if previous and previous.url %}
+    <a href="{{ previous.url }}">← {{ previous.title }}</a>
+    {% endif %}
+  </div>
+  <div class="nav-next">
+    {% if next and next.url %}
+    <a href="{{ next.url }}">{{ next.title }} →</a>
+    {% endif %}
+  </div>
+</nav>
+{% endblock %}
