@@ -294,6 +294,7 @@ class StaticSiteGenerator:
         
         # Metadata
         title = front_matter.get("title", filepath.stem.replace("-", " ").title())
+        subtitle = front_matter.get("subtitle", "")
         series = front_matter.get("series", "")
         clean_title = Utils.normalize(filepath.stem)
         
@@ -325,6 +326,7 @@ class StaticSiteGenerator:
         
         return {
             "title": title,
+            "subtitle": subtitle,
             "date": date_str,
             "formatted_date": Utils.format_date(date_str),
             "categories": categories,
@@ -439,6 +441,7 @@ class StaticSiteGenerator:
             
             html = template.render(
                 title=page["title"],
+                subtitle=page["subtitle"],
                 content=page["content"],
                 formatted_date=page["formatted_date"],
                 category=page["category"],

@@ -1,5 +1,6 @@
 ---
 title: Programas
+subtitle: Tudo que o que facilita 
 ---
 
 ## Sistema Operacional
@@ -10,7 +11,7 @@ Eu, como um bom acumulador digital,
 
 ## Downloaders
 
-![](/images/datawojak.png)
+![ ](/images/datawojak.png)
 
 ### qBitorrent + Scripts de busca
 

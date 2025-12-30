@@ -108,6 +108,11 @@ p {
   margin: 0 0 0.5em;
 }
 
+.subtitle {
+  font-style: italic;
+  text-align: center;
+}
+
 strong {
   color: #a9b1d6;
   font-weight: 600;

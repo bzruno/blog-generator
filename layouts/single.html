@@ -2,7 +2,9 @@
 {% block title %}{{ title }} - Meu Blog{% endblock %}
 {% block content %}
 <h1><a href="/">{{ title }}</a></h1>
-
+{% if subtitle %}
+<p class="subtitle"><em>{{ subtitle }}</em></p>
+{% endif %}
 <div class="article-meta">
   <div>Publicado em: {{ formatted_date }}</div>
   <div>
@@ -23,7 +25,6 @@
   </div>
   {% endif %}
 </div>
-
 {% if toc %}
 <div class="toc">
   <h2>Sumário</h2>
@@ -36,9 +37,7 @@
   </ul>
 </div>
 {% endif %}
-
 {{ content | safe }}
-
 <nav class="article-navigation">
   <div class="nav-previous">
     {% if previous.title %}
