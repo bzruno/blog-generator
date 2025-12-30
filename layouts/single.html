@@ -2,18 +2,18 @@
 {% block title %}{{ title }} - Meu Blog{% endblock %}
 {% block content %}
 <h1><a href="/">{{ title }}</a></h1>
+
 {% if subtitle %}
 <p class="subtitle"><em>{{ subtitle }}</em></p>
 {% endif %}
+
 <div class="article-meta">
   <div>Publicado em: {{ formatted_date }}</div>
   <div>
     Categoria: 
-    {% if category %}
-      {% for cat in category.split(",") %}
-        <a id="tag_{{ cat.strip() | normalize }}" href="/categorias/{{ cat.strip() | normalize }}">
-          {{ cat.strip() }}
-        </a>{% if not loop.last %}, {% endif %}
+    {% if categories %}
+      {% for cat in categories %}
+        <a href="/categorias/{{ cat | normalize }}">{{ cat }}</a>{% if not loop.last %}, {% endif %}
       {% endfor %}
     {% else %}
       Sem Categoria
@@ -21,10 +21,11 @@
   </div>
   {% if series %}
   <div>
-    Série: <a id="tag_{{ series | normalize }}" href="/series/{{ series | normalize }}">{{ series }}</a>
+    Série: <a href="/series/{{ series | normalize }}">{{ series }}</a>
   </div>
   {% endif %}
 </div>
+
 {% if toc %}
 <div class="toc">
   <h2>Sumário</h2>
@@ -37,7 +38,9 @@
   </ul>
 </div>
 {% endif %}
+
 {{ content | safe }}
+
 <nav class="article-navigation">
   <div class="nav-previous">
     {% if previous.title %}

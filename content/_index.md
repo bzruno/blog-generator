@@ -2,7 +2,7 @@
 title: Bem-vindo ao Meu Blog
 ---
 
-## 👋 Me chamo Bruno
+## Me chamo Bruno
 
 E aqui vou escrever sobre coisas que eu gosto e que de certa forma julgo interessantes.
 
@@ -22,23 +22,23 @@ E aqui vou escrever sobre coisas que eu gosto e que de certa forma julgo interes
 [![ublock](/images/88x31/ublock.png)](https://github.com/gorhill/uBlock)
 {{< /div >}}
 
-## 🪪 Pessoal
+## Sobre mim
 
 {{< pagelist >}}
 
-## 📁 Categorias [🔗](/categorias/)
+## [🔗](/categorias/) Categorias
 
 {{< category >}}
 
-## 📝 Artigos [🔗](/artigos/)
+## [🔗](/artigos/) Artigos
 
 {{< artlist >}}
 
-## 📰 Séries [🔗](/series/)
+## [Lis](/series/) Séries
 
 {{< serieslist >}}
 
-## ⌛ Vida em semanas
+## Vida em semanas
 
 Cada quadrado, uma semana.
 

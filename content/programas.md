@@ -1,6 +1,6 @@
 ---
 title: Programas
-subtitle: Tudo que o que facilita 
+subtitle: Tudo que o que facilita minha vida nos compiuters
 ---
 
 ## Sistema Operacional

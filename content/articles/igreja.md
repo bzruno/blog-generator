@@ -62,3 +62,5 @@ A Ortodoxia é a Igreja do Novo Testamento, Una, Santa, Católica e Apostólica,
 - **Escreva:** Contate a Conciliar Press (P.O. Box 76, Ben Lomond, CA 95005-0076) para informações.
 
 A Ortodoxia oferece a plenitude da fé cristã, convidando todos a “vir e ver” (João 1:46).
+
+---
