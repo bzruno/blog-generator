@@ -20,6 +20,8 @@ E aqui vou escrever sobre coisas que eu gosto e que de certa forma julgo interes
 [![piracy](/images/88x31/piracy.gif)](https://www.reddit.com/r/Piracy/wiki/megathread/)
 
 [![ublock](/images/88x31/ublock.png)](https://github.com/gorhill/uBlock)
+
+[![speech](/images/88x31/speech.gif)](https://freespeechunion.org/freedom-of-speech/?v=fc9fdf084e29)
 {{< /div >}}
 
 ## Sobre mim
