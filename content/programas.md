@@ -7,15 +7,15 @@ subtitle: Tudo que o que facilita minha vida nos compiuters
 
 Infelizmente, Windows 11.
 
-Eu, como um bom acumulador digital,
-
 ## Downloaders
+
+Como eu sou um cara que ama armazenar tudo no meu HD, baixo muitas mídias para manter salvas para mim. Não dependo de serviços de streaming/nuvem para nada. Para isso uso alguns programas.
 
 ![ ](/images/datawojak.png)
 
-### qBitorrent + Scripts de busca
+### qBitorrent + plugins de busca
 
-O maior e o melhor. Se vocÊ não encontrar o que procura aqui, certamente essa coisa não existe.
+O maior e o melhor agregador de informações que você pode ter. Se você não encontrar o que procura aqui, certamente essa coisa não existe.
 
 ### yt-dlp
 
@@ -25,6 +25,6 @@ O [yt-dlp](https://github.com/yt-dlp/yt-dlp) é um downloader de áudio/vídeo d
 
 O [gallery-dl](https://github.com/mikf/gallery-dl) é um programa de linha de comando para baixar galerias e coleções de imagens de vários sites de hospedagem de imagens
 
-### Anna's Archive
+### Video Downloader Helper (Extensão)
 
-## Navegador e extensões
+Uma extensão que uso no Firefox. Baixa qualquer vídeo de qualquer site. Uso como alternativa ao yt-dlp.

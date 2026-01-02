@@ -1,17 +1,15 @@
 ---
-title: Bem-vindo ao Meu Blog
+title: Bem vindo à minha página
 ---
 
 ## Me chamo Bruno
 
-E aqui vou escrever sobre coisas que eu gosto e que de certa forma julgo interessantes.
+E essa é minha página na World Wide Web. Aqui vou escrever sobre coisas que eu gosto e talvez postar alguns projetos.
 
 {{< div class="buttons">}}
 [![anythingbut](/images/88x31/anythingbut.gif)](https://spyware.neocities.org/articles/chrome_ptbr)
 
-[![asukalover](/images/88x31/asukalover.gif)](https://asukalover.neocities.org/)
-
-[![banporn](/images/88x31/banporn.gif)](https://www.yourbrainonporn.com/pt/tools-for-change-recovery-from-porn-addiction/rebooting-basics-start-here/)
+[![banporn](/images/88x31/banporn.gif)](https://nofap.com/rebooting/)
 
 [![get-eucharist](/images/88x31/get-eucharist.gif)](https://orthodoxwiki.org/Eucharist)
 
@@ -19,9 +17,9 @@ E aqui vou escrever sobre coisas que eu gosto e que de certa forma julgo interes
 
 [![piracy](/images/88x31/piracy.gif)](https://www.reddit.com/r/Piracy/wiki/megathread/)
 
-[![ublock](/images/88x31/ublock.png)](https://github.com/gorhill/uBlock)
+[![privacy](/images/88x31/internetprivacy.gif)](https://www.privacyguides.org/en/)
 
-[![speech](/images/88x31/speech.gif)](https://freespeechunion.org/freedom-of-speech/?v=fc9fdf084e29)
+[![speech](/images/88x31/speech.gif)](https://www.activism.net/cypherpunk/manifesto.html)
 {{< /div >}}
 
 ## Sobre mim
