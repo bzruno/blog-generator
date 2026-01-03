@@ -5,9 +5,4 @@ date: 2025-05-31
 
 ## Eu
 
-Que espécie de idiota
-
-##
-
-
 ---

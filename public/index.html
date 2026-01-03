@@ -14,13 +14,15 @@
 <h1><a href="/">Bem vindo à minha página</a></h1>
 <h2 id="me-chamo-bruno">Me chamo Bruno</h2>
 <p>E essa é minha página na World Wide Web. Aqui vou escrever sobre coisas que eu gosto e talvez postar alguns projetos.</p>
-<div class="buttons"><p><a href="https://spyware.neocities.org/articles/chrome_ptbr"><img alt="anythingbut" data-shortcode="true" src="/images/88x31/anythingbut.gif"/></a></p>
-<p><a href="https://nofap.com/rebooting/"><img alt="banporn" data-shortcode="true" src="/images/88x31/banporn.gif"/></a></p>
-<p><a href="https://orthodoxwiki.org/Eucharist"><img alt="get-eucharist" data-shortcode="true" src="/images/88x31/get-eucharist.gif"/></a></p>
-<p><a href="https://addons.mozilla.org/en-US/firefox/addon/istilldontcareaboutcookies/"><img alt="nocookie" data-shortcode="true" src="/images/88x31/nocookie.png"/></a></p>
-<p><a href="https://www.reddit.com/r/Piracy/wiki/megathread/"><img alt="piracy" data-shortcode="true" src="/images/88x31/piracy.gif"/></a></p>
-<p><a href="https://www.privacyguides.org/en/"><img alt="privacy" data-shortcode="true" src="/images/88x31/internetprivacy.gif"/></a></p>
-<p><a href="https://www.activism.net/cypherpunk/manifesto.html"><img alt="speech" data-shortcode="true" src="/images/88x31/speech.gif"/></a></p></div>
+<div class="buttons">
+<p><a href="https://spyware.neocities.org/articles/chrome_ptbr"><figure><img alt="anythingbut" src="/images/88x31/anythingbut.gif"/></figure></a></p>
+<p><a href="https://nofap.com/rebooting/"><figure><img alt="banporn" src="/images/88x31/banporn.gif"/></figure></a></p>
+<p><a href="https://orthodoxwiki.org/Eucharist"><figure><img alt="get-eucharist" src="/images/88x31/get-eucharist.gif"/></figure></a></p>
+<p><a href="https://addons.mozilla.org/en-US/firefox/addon/istilldontcareaboutcookies/"><figure><img alt="nocookie" src="/images/88x31/nocookie.png"/></figure></a></p>
+<p><a href="https://www.reddit.com/r/Piracy/wiki/megathread/"><figure><img alt="piracy" src="/images/88x31/piracy.gif"/></figure></a></p>
+<p><a href="https://www.privacyguides.org/en/"><figure><img alt="privacy" src="/images/88x31/internetprivacy.gif"/></figure></a></p>
+<p><a href="https://www.activism.net/cypherpunk/manifesto.html"><figure><img alt="speech" src="/images/88x31/speech.gif"/></figure></a></p>
+</div>
 <h2 id="sobre-mim">Sobre mim</h2>
 <ul class="page-list"><li><a href="/programas">Programas</a></li><li><a href="/sobre-mim">Sobre mim</a></li></ul>
 <h2 id="🔗-categorias"><a href="/categorias/">🔗</a> Categorias</h2>
@@ -31,89 +33,26 @@
 <ul class="series-list"><li><a href="/series/ia-basica">IA Básica</a></li><li><a href="/series/sql-basico">SQL Básico</a></li></ul>
 <h2 id="vida-em-semanas">Vida em semanas</h2>
 <p>Cada quadrado, uma semana.</p>
-<figure class="life-grid-container">
-<canvas class="life-grid" id="lifeGrid"></canvas>
-<figcaption>
-<div class="info-principal">
-      Idade: 28.7 anos |       Semanas vividas: 1,496 |       Semanas restantes: 3,200<br/>
-      Última atualização: 01/01/2026 às 22:22
+<figure style="max-width:100%;margin:20px auto;text-align:center;font-family:Inter,system-ui,sans-serif;color:#a9b1d6;font-size:14px;">
+<canvas id="lifeGrid" style="max-width:100%;height:auto;border-radius:6px;background:#16161e;"></canvas>
+<figcaption style="margin-top:15px;font-family:Inter,system-ui,sans-serif;color:#a9b1d6;font-size:14px;line-height:1.6;">
+<div style="margin-bottom:12px;font-family:JetBrains Mono,monospace;color:#c0caf5;font-size:13px;">
+      Idade: 28.7 anos | Semanas vividas: 1,496 | Semanas restantes: 3,200<br/>
+      Última atualização: 03/01/2026 às 20:02
     </div>
-<div class="legenda-container">
-<div class="marcos-linha">
-<span class="legenda-item marco-item"><span class="cor-marco" style="background-color: #7aa2f7"></span> Maioridade</span>
-<span class="legenda-item marco-item"><span class="cor-marco" style="background-color: #9ece6a"></span> Primeiro emprego</span>
-<span class="legenda-item marco-item"><span class="cor-marco" style="background-color: #f7768e"></span> Início pandemia COVID</span>
+<div style="display:flex;flex-direction:column;gap:8px;">
+<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:16px;padding-top:8px;border-top:1px solid #1a1b26;">
+<span style="display:flex;align-items:center;gap:6px;font-family:Inter,system-ui,sans-serif;color:#a9b1d6;font-size:13px;"><span style="width:12px;height:12px;border-radius:3px;background-color:#7aa2f7;"></span> Maioridade</span>
+<span style="display:flex;align-items:center;gap:6px;font-family:Inter,system-ui,sans-serif;color:#a9b1d6;font-size:13px;"><span style="width:12px;height:12px;border-radius:3px;background-color:#9ece6a;"></span> Primeiro emprego</span>
+<span style="display:flex;align-items:center;gap:6px;font-family:Inter,system-ui,sans-serif;color:#a9b1d6;font-size:13px;"><span style="width:12px;height:12px;border-radius:3px;background-color:#f7768e;"></span> Início pandemia COVID</span>
 </div>
 </div>
 </figcaption>
 </figure>
-<style>
-.life-grid-container {
-  max-width: 100%;
-  margin: 20px auto;
-  text-align: center;
-  font-family: "Inter", system-ui, sans-serif;
-  color: #a9b1d6;
-  font-size: 14px;
-}
-.life-grid-container canvas {
-  max-width: 100%;
-  height: auto;
-  border-radius: 6px;
-  background: #16161e;
-}
-.life-grid-container figcaption {
-  margin-top: 15px;
-  font-family: "Inter", system-ui, sans-serif;
-  color: #a9b1d6;
-  font-size: 14px;
-  line-height: 1.6;
-}
-.info-principal {
-  margin-bottom: 12px;
-  font-family: "JetBrains Mono", monospace;
-  color: #c0caf5;
-  font-size: 13px;
-}
-.legenda-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.marcos-linha {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding-top: 8px;
-  border-top: 1px solid #1a1b26;
-}
-.legenda-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: "Inter", system-ui, sans-serif;
-  color: #a9b1d6;
-  font-size: 13px;
-}
-.marco-item {
-  font-family: "Inter", system-ui, sans-serif;
-  color: #a9b1d6;
-  font-size: 13px;
-}
-.cor-marco {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-}
-@media (max-width: 768px) {
-  .info-principal { font-size: 12px; }
-  .legenda-item, .marco-item { font-size: 12px; }
-}
-</style>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+(function() {
   const canvas = document.getElementById("lifeGrid");
+  if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const totalWeeks = 4696;
   const livedWeeks = 1496;
@@ -124,9 +63,9 @@ document.addEventListener("DOMContentLoaded", function() {
   let opacity = 1.0;
   let fadingIn = true;
   const marcosEspeciais = [
-    { semana: 939, cor: "#7aa2f7" },
-    { semana: 1149, cor: "#9ece6a" },
-    { semana: 1192, cor: "#f7768e" }
+    {semana: 939, cor: "#7aa2f7"},
+    {semana: 1149, cor: "#9ece6a"},
+    {semana: 1192, cor: "#f7768e"}
   ];
   function resizeCanvas() {
     const container = canvas.parentElement;
@@ -145,15 +84,12 @@ document.addEventListener("DOMContentLoaded", function() {
   function drawGrid() {
     const { squareSize, gap } = resizeCanvas();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     for (let week = 0; week < totalWeeks; week++) {
       const row = Math.floor(week / weeksPerRow);
       const col = week % weeksPerRow;
       const x = col * (squareSize + gap);
       const y = row * (squareSize + gap);
-
       const marco = isMarcoEspecial(week);
-
       if (marco) {
         ctx.fillStyle = marco.cor;
         ctx.fillRect(x, y, squareSize, squareSize);
@@ -183,8 +119,9 @@ document.addEventListener("DOMContentLoaded", function() {
   window.addEventListener("resize", drawGrid);
   drawGrid();
   animate();
-});
+})();
 </script>
+
 </main>
 </body>
 

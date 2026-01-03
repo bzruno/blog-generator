@@ -1,9 +1,9 @@
-import sys, shutil, re, os, time, threading, unicodedata, importlib.util
+import sys, shutil, re, os, time, threading, unicodedata, importlib.util, subprocess
 from pathlib import Path
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 from bs4 import BeautifulSoup
-import markdown, http.server, socketserver
+import http.server, socketserver
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -14,37 +14,54 @@ from watchdog.events import FileSystemEventHandler
 class Utils:
     MONTHS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
     VIDEO_EXTS = ('.mp4', '.webm', '.ogg', '.avi', '.mov', '.wmv', '.flv', '.mkv')
-    
+
     @staticmethod
     def normalize(text):
-        """Normaliza texto para URL-safe"""
-        if not text: return ""
+        if not text:
+            return ""
         normalized = unicodedata.normalize('NFKD', str(text))
         ascii_text = ''.join(c for c in normalized if not unicodedata.combining(c))
         return re.sub(r'-{2,}', '-', re.sub(r'[<>:"/\\|?*%\s]+', '-', ascii_text.lower())).strip('-')
-    
+
     @staticmethod
     def parse_frontmatter(content):
-        """Extrai frontmatter YAML"""
         lines = content.strip().splitlines()
         if not lines or lines[0] != "---":
             return {"title": "Sem Título", "date": datetime.now().strftime("%Y-%m-%d")}, content
-        
-        front_matter, content_start = {}, 0
+
+        fm, start = {}, 0
         for i, line in enumerate(lines[1:], 1):
             if line.strip() == "---":
-                content_start = i + 1
+                start = i + 1
                 break
             if ":" in line:
-                key, value = map(str.strip, line.split(":", 1))
-                front_matter[key] = value
-        
-        return front_matter, "\n".join(lines[content_start:]).strip()
-    
+                k, v = map(str.strip, line.split(":", 1))
+                fm[k] = v
+
+        return fm, "\n".join(lines[start:]).strip()
+
     @classmethod
-    def format_date(cls, date_obj):
-        """Formata data para exibição a partir de objeto datetime"""
-        return f"{date_obj.day:02d} - {cls.MONTHS[date_obj.month - 1]} - {date_obj.year}"
+    def format_date(cls, date):
+        return f"{date.day:02d} - {cls.MONTHS[date.month-1]} - {date.year}"
+
+# ============================================================================
+# GFM RENDERER (CommonMark REAL)
+# ============================================================================
+
+def render_gfm(markdown_text: str) -> str:
+    process = subprocess.Popen(
+        ["node", "gfm.js"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8"
+    )
+    html, err = process.communicate(markdown_text)
+    if process.returncode != 0:
+        raise RuntimeError(err)
+    return html
+
 
 # ============================================================================
 # PROCESSADOR DE CONTEÚDO
@@ -53,128 +70,117 @@ class Utils:
 class ContentProcessor:
     def __init__(self, layouts_dir):
         self.shortcodes = self._load_shortcodes(layouts_dir)
-        self.md = markdown.Markdown(
-            extensions=['meta', 'extra', 'codehilite', 'toc', 'nl2br', 'sane_lists'],
-            extension_configs={'codehilite': {'use_pygments': False, 'css_class': 'highlight'}}
-        )
-    
+
     def _load_shortcodes(self, layouts_dir):
         shortcodes = {}
-        shortcodes_dir = layouts_dir / "shortcodes"
-        if not shortcodes_dir.exists(): return shortcodes
-        
-        for filepath in shortcodes_dir.glob("*.py"):
-            if filepath.stem == "__init__": continue
+        sc_dir = layouts_dir / "shortcodes"
+        if not sc_dir.exists():
+            return shortcodes
+
+        for file in sc_dir.glob("*.py"):
+            if file.stem == "__init__":
+                continue
             try:
-                spec = importlib.util.spec_from_file_location(filepath.stem, filepath)
-                if spec and spec.loader:
-                    module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(module)
-                    if hasattr(module, "render"):
-                        shortcodes[filepath.stem] = module.render
-            except Exception: continue
+                spec = importlib.util.spec_from_file_location(file.stem, file)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                if hasattr(mod, "render"):
+                    shortcodes[file.stem] = mod.render
+            except Exception:
+                pass
         return shortcodes
-    
+
     def _parse_args(self, args):
-        kwargs = {}
+        out = {}
         for arg in args.split():
             if '=' in arg:
-                key, value = arg.split('=', 1)
-                kwargs[key.strip()] = value.strip().strip('"\'')
-        return kwargs
-    
+                k, v = arg.split("=", 1)
+                out[k.strip()] = v.strip().strip('"\'')
+        return out
+
     def process_shortcodes(self, content, categories=None, posts=None):
-        if not self.shortcodes: return content
-        categories, posts, result = categories or [], posts or [], content
-        
-        # Shortcodes pareados
-        paired_pattern = r'{{<\s*([^/>]+?)\s*>}}(.*?){{<\s*/([^>]+?)\s*>}}'
+        if not self.shortcodes:
+            return content
+
+        categories, posts = categories or [], posts or []
+        result = content
+
+        paired = r'{{<\s*([^/>]+?)\s*>}}(.*?){{<\s*/([^>]+?)\s*>}}'
         for _ in range(5):
-            if not re.search(paired_pattern, result, re.DOTALL): break
-            def replace_paired(m):
-                opening, inner, closing = m.groups()
-                name = opening.split()[0]
-                if name != closing or name not in self.shortcodes: return ""
-                args = self._parse_args(opening.split(None, 1)[1] if len(opening.split()) > 1 else "")
-                try: return self.shortcodes[name](categories, posts, self.process_shortcodes(inner, categories, posts), **args)
-                except: return ""
-            result = re.sub(paired_pattern, replace_paired, result, flags=re.DOTALL)
-        
-        # Shortcodes simples
-        simple_pattern = r'{{<\s*([^/>]+?)\s*>}}'
+            if not re.search(paired, result, re.DOTALL):
+                break
+
+            def repl(m):
+                open_, inner, close = m.groups()
+                name = open_.split()[0]
+                if name != close or name not in self.shortcodes:
+                    return ""
+                args = self._parse_args(open_.split(None, 1)[1] if len(open_.split()) > 1 else "")
+                return self.shortcodes[name](categories, posts, self.process_shortcodes(inner, categories, posts), **args)
+
+            result = re.sub(paired, repl, result, flags=re.DOTALL)
+
+        simple = r'{{<\s*([^/>]+?)\s*>}}'
         for _ in range(5):
-            if not re.search(simple_pattern, result): break
-            def replace_simple(m):
+            if not re.search(simple, result):
+                break
+
+            def repl(m):
                 tag = m.group(1).strip()
-                if tag.startswith('/'): return ""
                 parts = tag.split(None, 1)
                 name, args = parts[0], parts[1] if len(parts) > 1 else ""
                 if name in self.shortcodes:
-                    try: return self.shortcodes[name](categories, posts, "", **self._parse_args(args))
-                    except: pass
+                    return self.shortcodes[name](categories, posts, "", **self._parse_args(args))
                 return ""
-            result = re.sub(simple_pattern, replace_simple, result)
+
+            result = re.sub(simple, repl, result)
+
         return result
-    
+
     def _process_media(self, soup):
         for img in soup.find_all("img"):
-            if img.get("data-shortcode"): continue
             src = img.get("src", "")
-            
             if any(src.lower().endswith(ext) for ext in Utils.VIDEO_EXTS):
-                video_src = src.replace("../", "/") if src.startswith("../") else \
-                           f"/videos/{src}" if not src.startswith(("/", "http")) else src
-                video = soup.new_tag("video", controls=True, **{"class": "video-player"})
-                video.append(soup.new_tag("source", src=video_src, type=f"video/{Path(src).suffix[1:]}"))
-                figure = soup.new_tag("figure", **{"class": "video-figure"})
-                figure.append(video)
-                if (alt := img.get("alt")) and not re.match(r'^https?://', alt):
-                    figcaption = soup.new_tag("figcaption")
-                    figcaption.string = alt
-                    figure.append(figcaption)
-                img.replace_with(figure)
+                video = soup.new_tag("video", controls=True)
+                video.append(soup.new_tag("source", src=src))
+                img.replace_with(video)
             else:
-                figure = soup.new_tag("figure", **{"class": "image-figure"})
-                img.wrap(figure)
-                if (alt := img.get("alt")) and not re.match(r'^https?://', alt):
-                    figcaption = soup.new_tag("figcaption")
-                    figcaption.string = alt
-                    figure.append(figcaption)
-                if src.startswith("../"): img["src"] = src.replace("../", "/")
-                elif not src.startswith(("/", "http")): img["src"] = f"/images/{src}"
-    
+                fig = soup.new_tag("figure")
+                img.wrap(fig)
+
     def _generate_toc(self, soup):
-        toc, counters, used_ids = [], [0, 0, 0, 0], set()
-        has_h1 = any(h.name == "h1" for h in soup.find_all(['h1', 'h2', 'h3', 'h4']))
-        
-        for heading in soup.find_all(['h1', 'h2', 'h3', 'h4']):
-            level = int(heading.name[1]) - 1
-            for i in range(level + 1, 4): counters[i] = 0
+        toc, used = [], set()
+        counters = [0, 0, 0]  # [h2, h3, h4] para suportar até h4
+
+        for h in soup.find_all(['h2','h3','h4']):
+            hid = Utils.normalize(h.get_text())
+            if hid in used:
+                hid += "-1"
+            used.add(hid)
+            h['id'] = hid
+
+            level = int(h.name[1]) - 2  # h2 -> 0, h3 -> 1, h4 -> 2
+
             counters[level] += 1
-            
-            base_id = Utils.normalize(heading.get_text().strip())
-            heading_id, counter = base_id, 1
-            while heading_id in used_ids:
-                heading_id = f"{base_id}-{counter}"
-                counter += 1
-            used_ids.add(heading_id)
-            heading['id'] = heading_id
-            
-            prefix = [str(c) for c in counters[0 if has_h1 else 1:level+1]]
-            number = ".".join(prefix) + "."
-            
+            for i in range(level + 1, len(counters)):
+                counters[i] = 0
+
+            number = ".".join(str(counters[i]) for i in range(level + 1) if counters[i] > 0) + "."
+
             toc.append({
-                "level": heading.name,
-                "text": heading.get_text().strip(),
-                "id": heading_id,
-                "number": number,
-                "indent": level
+                "level": h.name,
+                "text": h.get_text(),
+                "id": hid,
+                "indent": level,
+                "number": number
             })
+
         return soup, toc
-    
+
+
     def enhance_html(self, md_content, categories=None, posts=None):
         content = self.process_shortcodes(md_content, categories, posts)
-        html = self.md.convert(content)
+        html = render_gfm(content)
         soup = BeautifulSoup(html, "html.parser")
         self._process_media(soup)
         soup, toc = self._generate_toc(soup)
@@ -246,7 +252,7 @@ class StaticSiteGenerator:
             "title": title,
             "subtitle": front_matter.get("subtitle", ""),
             "date": date_str,
-            "timestamp": date_obj, # IMPORTANTE: Para ordenação
+            "timestamp": date_obj,
             "formatted_date": Utils.format_date(date_obj),
             "categories": categories,
             "category": category_str if is_article else "",
@@ -277,29 +283,8 @@ class StaticSiteGenerator:
                 self.index_page = {"title": fm.get("title", "Página Inicial"), "content": md}
             except: pass
         
-        # Ordenação otimizada por timestamp
         self.pages.sort(key=lambda x: x["timestamp"], reverse=True)
         return self.pages, self.index_page
-    
-    def _get_navigation(self, pages, index):
-        current = pages[index]
-        series = current.get("series", "")
-        
-        if current["is_article"]:
-            # Filtra e ordena
-            nav_pages = sorted(
-                [p for p in pages if p["is_article"] and (p["series"] == series if series else not p["series"])],
-                key=lambda x: (x.get("part", 0), x["timestamp"])
-            )
-        else:
-            nav_pages = sorted([p for p in pages if not p["is_article"]], key=lambda x: x["timestamp"])
-        
-        nav_index = next((i for i, p in enumerate(nav_pages) if p["url"] == current["url"]), -1)
-        if nav_index == -1: return None, None
-        
-        prev = nav_pages[nav_index - 1] if nav_index > 0 else None
-        next_ = nav_pages[nav_index + 1] if nav_index < len(nav_pages) - 1 else None
-        return prev, next_
 
     def _copy_static(self):
         for name in ["static", "images", "videos"]:
@@ -325,20 +310,15 @@ class StaticSiteGenerator:
         # Páginas Individuais
         for i, page in enumerate(self.pages):
             template = self._template("single.html" if page["is_article"] else "pages.html")
-            nav_pages = [p for p in self.pages if p["is_article"]] if page["is_article"] else self.pages
-            nav_index = next((j for j, p in enumerate(nav_pages) if p["url"] == page["url"]), i)
-            prev, next_ = self._get_navigation(nav_pages, nav_index)
             
             html = template.render(
                 title=page["title"],
                 subtitle=page["subtitle"],
                 content=page["content"],
                 formatted_date=page["formatted_date"],
-                categories=page["categories"], # CORREÇÃO: Passando a lista processada
+                categories=page["categories"],
                 category=page["category"],
                 series=page["series"],
-                previous=prev or {},
-                next=next_ or {},
                 toc=page["toc"],
                 url=page["url"]
             )

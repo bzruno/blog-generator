@@ -63,4 +63,3 @@ A Ortodoxia é a Igreja do Novo Testamento, Una, Santa, Católica e Apostólica,
 
 A Ortodoxia oferece a plenitude da fé cristã, convidando todos a “vir e ver” (João 1:46).
 
----

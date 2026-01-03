@@ -44,6 +44,54 @@
       <a href="#video-downloader-helper-(extensao)">2.4. Video Downloader Helper (Extensão)</a>
     </li>
     
+    <li class="toc-h2">
+      <a href="#headings">3. Headings</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#h2-—-subtitulo">4. H2 — Subtítulo</a>
+    </li>
+    
+    <li class="toc-h3">
+      <a href="#h3-—-secao">4.1. H3 — Seção</a>
+    </li>
+    
+    <li class="toc-h4">
+      <a href="#h4-—-subsecao">4.1.1. H4 — Subseção</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#enfase-e-texto">5. Ênfase e Texto</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#links">6. Links</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#listas-nao-ordenadas-(gfm)">7. Listas Não Ordenadas (GFM)</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#listas-ordenadas">8. Listas Ordenadas</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#task-lists-(gfm)">9. Task Lists (GFM)</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#blockquotes-(substituem-admonitions)">10. Blockquotes (substituem admonitions)</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#codigo-inline">11. Código Inline</a>
+    </li>
+    
+    <li class="toc-h2">
+      <a href="#blocos-de-codigo">12. Blocos de Código</a>
+    </li>
+    
   </ul>
 </div>
 
@@ -51,15 +99,152 @@
 <p>Infelizmente, Windows 11.</p>
 <h2 id="downloaders">Downloaders</h2>
 <p>Como eu sou um cara que ama armazenar tudo no meu HD, baixo muitas mídias para manter salvas para mim. Não dependo de serviços de streaming/nuvem para nada. Para isso uso alguns programas.</p>
-<p><figure class="image-figure"><img alt=" " src="/images/datawojak.png"/><figcaption> </figcaption></figure></p>
+<p><figure><img alt=" " src="/images/datawojak.png"/></figure></p>
 <h3 id="qbitorrent-+-plugins-de-busca">qBitorrent + plugins de busca</h3>
-<p>O maior e o melhor agregador de informações que você pode ter. Se você não encontrar o que procura aqui, certamente essa coisa não existe.</p>
+<p>O <s>maior</s> e o melhor agregador de informações que você pode ter. Se você não encontrar o que procura aqui, certamente essa coisa não existe.</p>
 <h3 id="yt-dlp">yt-dlp</h3>
 <p>O <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a> é um downloader de áudio/vídeo de linha de comando rico em recursos, com suporte para milhares de sites.</p>
 <h3 id="gallery-dl">gallery-dl</h3>
-<p>O <a href="https://github.com/mikf/gallery-dl">gallery-dl</a> é um programa de linha de comando para baixar galerias e coleções de imagens de vários sites de hospedagem de imagens</p>
+<p>O <a href="https://github.com/mikf/gallery-dl">gallery-dl</a> é um programa de linha de comando para baixar galerias e coleções de imagens de vários sites de hospedagem de imagens.</p>
 <h3 id="video-downloader-helper-(extensao)">Video Downloader Helper (Extensão)</h3>
-<p>Uma extensão que uso no Firefox. Baixa qualquer vídeo de qualquer site. Uso como alternativa ao yt-dlp.</p>
+<p>Aqui está um texto com uma nota de rodapé<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> para exemplificar.</p>
+<p>Outro texto com mais uma nota<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
+<h1>Exemplo Completo — GitHub Flavored Markdown (GFM)</h1>
+<h2 id="headings">Headings</h2>
+<h1>H1 — Título principal</h1>
+<h2 id="h2-—-subtitulo">H2 — Subtítulo</h2>
+<h3 id="h3-—-secao">H3 — Seção</h3>
+<h4 id="h4-—-subsecao">H4 — Subseção</h4>
+<h5>H5</h5>
+<h6>H6</h6>
+<hr/>
+<h2 id="enfase-e-texto">Ênfase e Texto</h2>
+<p>Texto normal com <strong>negrito</strong>, <em>itálico</em> e <em><strong>ambos juntos</strong></em>.</p>
+<p>Texto <s>riscado</s> funciona.</p>
+<p>Texto com <mark>destaque usando HTML</mark> (forma correta no GFM).</p>
+<p>Underline usando HTML: <ins>texto sublinhado</ins></p>
+<p>Texto pequeno: <small>pequeno</small></p>
+<p>Subscrito e sobrescrito com HTML:<br/>
+H<sub>2</sub>O — E = mc<sup>2</sup></p>
+<hr/>
+<h2 id="links">Links</h2>
+<p><a href="https://github.com">Link externo</a></p>
+<p>Autolink: <a href="https://github.com">https://github.com</a></p>
+<hr/>
+<table>
+<thead>
+<tr>
+<th>Recurso</th>
+<th style="text-align:center">Suportado no GFM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Negrito</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>Itálico</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>Riscado</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>Listas</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>Sublistas</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>Task Lists</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>Tabelas</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>Emojis</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>HTML Inline</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>Admonitions</td>
+<td style="text-align:center">❌</td>
+</tr>
+<tr>
+<td>==Highlight==</td>
+<td style="text-align:center">❌</td>
+</tr>
+</tbody>
+</table>
+<h2 id="listas-nao-ordenadas-(gfm)">Listas Não Ordenadas (GFM)</h2>
+<ul>
+<li>Item 1</li>
+<li>Item 2
+<ul>
+<li>Subitem 2.1</li>
+<li>Subitem 2.2</li>
+</ul>
+</li>
+<li>Item 3</li>
+</ul>
+<hr/>
+<h2 id="listas-ordenadas">Listas Ordenadas</h2>
+<ol>
+<li>Primeiro</li>
+<li>Segundo</li>
+<li>Terceiro</li>
+</ol>
+<hr/>
+<h2 id="task-lists-(gfm)">Task Lists (GFM)</h2>
+<ul class="contains-task-list">
+<li class="task-list-item enabled"><input checked="" class="task-list-item-checkbox" type="checkbox"/> Tarefa concluída</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox" type="checkbox"/> Tarefa pendente</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox" type="checkbox"/> Outra tarefa</li>
+</ul>
+<hr/>
+<h2 id="blockquotes-(substituem-admonitions)">Blockquotes (substituem admonitions)</h2>
+<blockquote>
+<p><strong>Nota</strong></p>
+<p>Isto é uma nota em GFM puro.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong>Aviso</strong></p>
+<p>Atenção a este detalhe importante.</p>
+</blockquote>
+<blockquote>
+<p>✅ <strong>Dica</strong></p>
+<p>Isso é uma boa prática.</p>
+</blockquote>
+<blockquote>
+<p>❌ <strong>Erro</strong></p>
+<p>Algo deu errado aqui.</p>
+</blockquote>
+<hr/>
+<h2 id="codigo-inline">Código Inline</h2>
+<p>Use <code>print("Hello World")</code> para imprimir algo.</p>
+<hr/>
+<h2 id="blocos-de-codigo">Blocos de Código</h2>
+<pre><code class="language-python">def hello():
+    print("Hello World")</code></pre>
+<hr class="footnotes-sep"/>
+<section class="footnotes">
+<ol class="footnotes-list">
+<li class="footnote-item" id="fn1"><p>Esta é a primeira nota de rodapé. <a class="footnote-backref" href="#fnref1">↩︎</a></p>
+</li>
+<li class="footnote-item" id="fn2"><p>Esta é a segunda nota de rodapé. <a class="footnote-backref" href="#fnref2">↩︎</a></p>
+</li>
+</ol>
+</section>
+
 </main>
 </body>
 
