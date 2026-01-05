@@ -1,0 +1,21 @@
+{
+  "cSpell.enabled": true,
+  "cSpell.language": "en,pt-BR",
+  "cSpell.enabledFileTypes": {
+    "markdown": true,
+    "plaintext": false,
+    "json": false,
+    "javascript": false,
+    "typescript": false,
+    "css": false,
+    "html": false,
+    "python": false
+  },
+
+  "[markdown]": {
+    "editor.lineNumbers": "off",
+    "editor.rulers": [],
+    "editor.fontSize": 13
+  },
+  "liveServer.settings.port": 5501
+}

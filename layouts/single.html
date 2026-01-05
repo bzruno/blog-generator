@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - Meu Blog{% endblock %}
+{% block content %}
+<h1><a href="/">{{ title }}</a></h1>
+{% if subtitle %}
+<p class="subtitle"><em>{{ subtitle }}</em></p>
+{% endif %}
+<div class="article-meta">
+  <div>Publicado em: {{ formatted_date }}</div>
+  <div>
+    Categoria: 
+    {% if categories %}
+      {% for cat in categories %}
+        <a href="/categorias/{{ cat | normalize }}">{{ cat }}</a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    {% else %}
+      Sem Categoria
+    {% endif %}
+  </div>
+  {% if series %}
+  <div>
+    Série: <a href="/series/{{ series | normalize }}">{{ series }}</a>
+  </div>
+  {% endif %}
+</div>
+{% if toc %}
+<div class="toc">
+  <h2>Sumário</h2>
+  <ul class="toc-list">
+    {% for item in toc %}
+    <li class="toc-{{ item.level }}">
+      <a href="#{{ item.id }}">{{ item.number }} {{ item.text }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{{ content | safe }}
+<div class="home-link">
+  <a href="/">Home</a>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - Meu Blog{% endblock %}
+{% block content %}
+<h1><a href="/">{{ title }}</a></h1>
+{% if subtitle %}
+<p class="subtitle"><em>{{ subtitle }}</em></p>
+{% endif %}
+{% if toc %}
+<div class="toc">
+  <h2>Sumário</h2>
+  <ul class="toc-list">
+    {% for item in toc %}
+    <li class="toc-{{ item.level }}">
+      <a href="#{{ item.id }}">{{ item.number }} {{ item.text }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{{ content | safe }}
+{% endblock %}
