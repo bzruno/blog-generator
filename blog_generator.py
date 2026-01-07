@@ -328,7 +328,33 @@ class StaticSiteGenerator:
                     except PermissionError: 
                         pass
 
+    def _clean_output_dir(self):
+        """Limpa o diretório public/ preservando apenas .git"""
+        if not self.output_dir.exists():
+            return
+        
+        git_dir = self.output_dir / ".git"
+        git_backup = None
+        
+        # Backup temporário do .git se existir
+        if git_dir.exists():
+            git_backup = self.root / ".git_backup_temp"
+            if git_backup.exists():
+                shutil.rmtree(git_backup)
+            shutil.move(str(git_dir), str(git_backup))
+        
+        # Remove tudo do public/
+        shutil.rmtree(self.output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Restaura o .git
+        if git_backup and git_backup.exists():
+            shutil.move(str(git_backup), str(git_dir))
+
     def generate(self):
+        # LIMPA TUDO ANTES DE GERAR (exceto .git)
+        self._clean_output_dir()
+        
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self._load_content()
         if not self.index_page: 
