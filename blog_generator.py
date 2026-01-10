@@ -334,22 +334,23 @@ class StaticSiteGenerator:
             return
         
         git_dir = self.output_dir / ".git"
-        git_backup = None
         
-        # Backup temporário do .git se existir
-        if git_dir.exists():
-            git_backup = self.root / ".git_backup_temp"
-            if git_backup.exists():
-                shutil.rmtree(git_backup)
-            shutil.move(str(git_dir), str(git_backup))
+        # Deleta TUDO exceto .git
+        def remove_readonly(func, path, _):
+            os.chmod(path, 0o777)
+            func(path)
         
-        # Remove tudo do public/
-        shutil.rmtree(self.output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Restaura o .git
-        if git_backup and git_backup.exists():
-            shutil.move(str(git_backup), str(git_dir))
+        for item in self.output_dir.iterdir():
+            if item.name == ".git":
+                continue
+            
+            try:
+                if item.is_dir():
+                    shutil.rmtree(item, onerror=remove_readonly)
+                else:
+                    item.unlink()
+            except Exception as e:
+                print(f"Aviso: Não foi possível deletar {item}: {e}")
 
     def generate(self):
         # LIMPA TUDO ANTES DE GERAR (exceto .git)

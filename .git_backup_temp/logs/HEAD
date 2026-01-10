@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 488b5b1e19555c51bd4c178e9b10618b747bddcd Bruno <bhfreitas@gmail.com> 1767669723 -0300	commit (initial): atualização
+488b5b1e19555c51bd4c178e9b10618b747bddcd 0000000000000000000000000000000000000000 Bruno <bhfreitas@gmail.com> 1767669782 -0300	Branch: renamed refs/heads/master to refs/heads/main
+0000000000000000000000000000000000000000 488b5b1e19555c51bd4c178e9b10618b747bddcd Bruno <bhfreitas@gmail.com> 1767669782 -0300	Branch: renamed refs/heads/master to refs/heads/main
+488b5b1e19555c51bd4c178e9b10618b747bddcd 2c125401b96a30ef3b897c9ce52f90a07870aa08 Bruno <bhfreitas@gmail.com> 1767669913 -0300	pull origin main --rebase (start): checkout 2c125401b96a30ef3b897c9ce52f90a07870aa08
+2c125401b96a30ef3b897c9ce52f90a07870aa08 fe8a1c7058e7826663c12c9bda0763a29500605b Bruno <bhfreitas@gmail.com> 1767749030 -0300	commit: blog melhorado
+fe8a1c7058e7826663c12c9bda0763a29500605b 488b5b1e19555c51bd4c178e9b10618b747bddcd Bruno <bhfreitas@gmail.com> 1767749087 -0300	rebase (abort): returning to refs/heads/main
