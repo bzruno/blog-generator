@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +7,15 @@
   <link rel="stylesheet" href="/static/style.css">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
 </head>
-
 <body>
-  <main>{% block content %}{% endblock %}</main>
-</body>
+  <main class="markdown-body">
+    {% block content %}{% endblock %}
+  </main>
 
+  <!-- Mermaid JS -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+  </script>
+</body>
 </html>

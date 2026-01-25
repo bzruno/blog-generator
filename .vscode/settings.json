@@ -12,10 +12,13 @@
     "python": false
   },
 
+  "editor.fontFamily": "JetBrainsMono-Thin, JetBrains Mono, Consolas, 'Courier New', monospace",
+
   "[markdown]": {
     "editor.lineNumbers": "off",
     "editor.rulers": [],
     "editor.fontSize": 13
   },
+
   "liveServer.settings.port": 5501
 }

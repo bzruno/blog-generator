@@ -4,6 +4,7 @@ date: 2025-07-23
 category: Religião
 ---
 
+[[toc]]
 
 ## O Início no Novo Testamento
 
