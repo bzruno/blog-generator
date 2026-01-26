@@ -20,13 +20,12 @@ import multimdTable from "markdown-it-multimd-table";
 import implicitFigures from "markdown-it-implicit-figures";
 import video from "markdown-it-video";
 import linkAttrs from "markdown-it-link-attributes";
-import frontMatter from "markdown-it-front-matter";
 import kbd from "markdown-it-kbd";
 import spoiler from "markdown-it-spoiler";
 import emoji from "markdown-it-emoji";
 import attrs from "markdown-it-attrs";
 
-// Slugify customizado
+// Slugify customizado (mantido para âncoras internas)
 const customSlugify = s =>
   s.toLowerCase()
     .normalize("NFKD")
@@ -34,20 +33,6 @@ const customSlugify = s =>
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/^-+|-+$/g, "");
-
-// Parser simples de front-matter
-function parseFrontMatter(yaml) {
-  const data = {};
-  yaml.split("\n").forEach(line => {
-    const splitIdx = line.indexOf(':');
-    if (splitIdx > -1) {
-      const key = line.substring(0, splitIdx).trim();
-      const value = line.substring(splitIdx + 1).trim();
-      if (key) data[key] = value.replace(/^["']|["']$/g, "");
-    }
-  });
-  return data;
-}
 
 const md = new MarkdownIt({
   html: true,
@@ -66,9 +51,8 @@ const md = new MarkdownIt({
   }
 });
 
-let metadata = {};
-md.use(frontMatter, fm => { metadata = parseFrontMatter(fm); })
-  .use(emoji)
+// REMOVIDO: frontMatter plugin (agora feito apenas no Python)
+md.use(emoji)
   .use(taskLists, { enabled: true, label: true, labelAfter: true })
   .use(footnote)
   .use(deflist)
@@ -110,7 +94,7 @@ md.use(frontMatter, fm => { metadata = parseFrontMatter(fm); })
   })
   .use(attrs);
 
-// Plugin Mermaid customizado (compatível com ES modules)
+// Plugin Mermaid customizado
 md.use((md) => {
   const defaultFence = md.renderer.rules.fence;
   
@@ -143,13 +127,8 @@ md.use((md) => {
   });
 });
 
-// Lazy loading em imagens
-const defaultImage = md.renderer.rules.image;
-md.renderer.rules.image = (tokens, idx, options, env, self) => {
-  tokens[idx].attrPush(["loading", "lazy"]);
-  tokens[idx].attrPush(["decoding", "async"]);
-  return defaultImage ? defaultImage(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options);
-};
+// REMOVIDO: Lazy loading automático (desnecessário para blog pessoal pequeno)
+// Se precisar no futuro, adicione manualmente nos templates
 
 // Blockquote com classe
 const defaultBlockquote = md.renderer.rules.blockquote_open || ((t, i, o, e, s) => s.renderToken(t, i, o));

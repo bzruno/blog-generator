@@ -1,29 +1,50 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css');
+@import url('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.css');
 @import url('/static/markdown.css');
 
+/* ============================================================================
+   STYLE.CSS - Variáveis Unificadas + Layout do Site (Tokyo Night Theme)
+   ============================================================================ */
+
 :root {
+  /* ========== VARIÁVEIS GLOBAIS (usadas por markdown.css e style.css) ========== */
+  
   /* Fundos */
-  --bg-page: #070707;
-  --bg-card: #111;
-  --bg-elevated: #16161e;
-  
+  --bg-base: #1a1b26;
+  --bg-elevated: #24283b;
+  --bg-elevated-hover: #2d3349;
+  --page-bg: #070707;
+  --card-bg: #111;
+  --card-elevated: #16161e;
+
+  /* Bordas */
+  --border: #414868;
+  --border-strong: #565f89;
+  --page-border: #1a1b26;
+  --page-border-strong: #2f334d;
+
   /* Texto */
-  --text-bright: #c0caf5;
-  --text-normal: #dce0f5;
-  --text-muted: #787c99;
-  
-  /* Accent */
+  --text-normal: #c0caf5;
+  --text-bright: #c9d6ff;
+  --text-muted: #a9b1d6;
+  --page-text-bright: #c0caf5;
+  --page-text-normal: #dce0f5;
+  --page-text-muted: #787c99;
+
+  /* Accent colors (compartilhados) */
   --accent-blue: #7aa2f7;
   --accent-cyan: #7dcfff;
-  --accent-purple: #bb9af7;
   --accent-green: #9ece6a;
   --accent-orange: #e0af68;
-  
-  /* Borders */
-  --border: #1a1b26;
-  --border-strong: #2f334d;
+  --accent-purple: #bb9af7;
+  --accent-red: #f7768e;
+  --accent-yellow: #e0af68;
 }
 
+/* ============================================================================
+   RESET E BASE
+   ============================================================================ */
 * {
   margin: 0;
   padding: 0;
@@ -34,29 +55,36 @@ body {
   font-family: 'Inter', Arial, sans-serif;
   font-size: 16px;
   line-height: 1.6;
-  color: var(--text-normal);
-  background: var(--bg-page);
+  color: var(--page-text-normal);
+  background: var(--page-bg);
   max-width: 920px;
   margin: 10px auto;
 }
 
 main {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--card-bg);
+  border: 1px solid var(--page-border);
   border-radius: 12px;
   padding: 20px;
   margin: 0 20px;
 }
 
-/* Efeito VHS */
+/* ============================================================================
+   EFEITO VHS (otimizado com will-change)
+   ============================================================================ */
 body::before {
   content: "";
   position: fixed;
   inset: -100px 0;
-  background: repeating-linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, .21) 1px, transparent 2px, transparent 4px);
+  background: repeating-linear-gradient(to bottom,
+      transparent 0,
+      rgba(0, 0, 0, 0.21) 1px,
+      transparent 2px,
+      transparent 4px);
   pointer-events: none;
   z-index: 9999;
   animation: vhs 8s linear infinite;
+  will-change: transform;
 }
 
 @keyframes vhs {
@@ -65,19 +93,20 @@ body::before {
   }
 }
 
-/* Texto */
+/* ============================================================================
+   TEXTO E METADADOS
+   ============================================================================ */
 .subtitle {
   font-style: italic;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--page-text-muted);
   margin: 10px 0 30px;
   display: block;
 }
 
-/* Metadados do artigo */
 .article-date {
   font-family: 'JetBrains Mono', monospace;
-  color: var(--text-muted);
+  color: var(--page-text-muted);
   font-size: 0.875em;
 }
 
@@ -96,12 +125,14 @@ body::before {
   margin: 5px 0;
 }
 
-/* Navegação */
+/* ============================================================================
+   NAVEGAÇÃO
+   ============================================================================ */
 .home-link {
   text-align: center;
   margin: 50px 0 30px;
   padding: 20px 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--page-border);
 }
 
 .home-link a {
@@ -110,18 +141,21 @@ body::before {
   border-radius: 8px;
   color: var(--accent-blue);
   font-weight: 600;
-  border: 1px solid var(--border);
+  border: 1px solid var(--page-border);
   text-decoration: none;
+  transition: all 0.2s;
 }
 
 .home-link a:hover {
-  background: var(--border);
+  background: var(--page-border);
   color: var(--accent-cyan);
   transform: translateY(-2px);
   border-color: var(--accent-blue);
 }
 
-/* Listas de conteúdo */
+/* ============================================================================
+   LISTAS DE CONTEÚDO
+   ============================================================================ */
 .article-list,
 .page-list,
 .series-list {
@@ -136,17 +170,19 @@ body::before {
   margin: 10px 0;
   padding: 12px;
   border-radius: 8px;
-  background: var(--bg-elevated);
-  transition: background .2s;
+  background: var(--card-elevated);
+  transition: background 0.2s;
 }
 
 .article-list li:hover,
 .page-list li:hover,
 .series-list li:hover {
-  background: var(--border);
+  background: var(--page-border);
 }
 
-/* Categorias */
+/* ============================================================================
+   CATEGORIAS
+   ============================================================================ */
 .category-list {
   list-style: none;
   padding: 0;
@@ -156,29 +192,57 @@ body::before {
 .category-list li {
   display: inline-block;
   border-radius: 8px;
-  background: var(--bg-elevated);
+  background: var(--card-elevated);
   padding: 10px 15px;
   margin: 0 8px 8px 0;
-  transition: background .2s;
-  border: 1px solid var(--border);
+  transition: background 0.2s;
+  border: 1px solid var(--page-border);
 }
 
 .category-list li:hover {
-  background: var(--border);
+  background: var(--page-border);
 }
 
 /* Emojis das categorias */
-#tag_economia::before { content: "📈 "; }
-#tag_grana::before { content: "💸 "; }
-#tag_tecnologia::before { content: "💻 "; }
-#tag_religiao::before { content: "☦️ "; }
-#tag_academia::before { content: "🏋️‍♂️ "; }
-#tag_filosofia::before { content: "🏛️ "; }
-#tag_internet::before { content: "🌐 "; }
-#tag_vida::before { content: "⏳ "; }
-#tag_nutricao::before { content: "🥩 "; }
+#tag_economia::before {
+  content: "📈 ";
+}
 
-/* Botões */
+#tag_grana::before {
+  content: "💸 ";
+}
+
+#tag_tecnologia::before {
+  content: "💻 ";
+}
+
+#tag_religiao::before {
+  content: "☦️ ";
+}
+
+#tag_academia::before {
+  content: "🏋️‍♂️ ";
+}
+
+#tag_filosofia::before {
+  content: "🏛️ ";
+}
+
+#tag_internet::before {
+  content: "🌐 ";
+}
+
+#tag_vida::before {
+  content: "⏳ ";
+}
+
+#tag_nutricao::before {
+  content: "🥩 ";
+}
+
+/* ============================================================================
+   BOTÕES (override para imagens dentro de .buttons)
+   ============================================================================ */
 .buttons {
   display: flex;
   flex-wrap: wrap;
@@ -196,18 +260,25 @@ body::before {
   display: none;
 }
 
-/* Responsivo */
+/* Imagens dentro de .buttons mantêm 100% */
+.buttons img {
+  max-width: 100%;
+}
+
+/* ============================================================================
+   RESPONSIVIDADE
+   ============================================================================ */
 @media (max-width: 768px) {
   body {
     margin: 10px auto;
     font-size: 15px;
   }
-  
+
   main {
     margin: 0 10px;
     padding: 15px;
   }
-  
+
   .category-list li {
     display: block;
     margin: 0 0 8px;

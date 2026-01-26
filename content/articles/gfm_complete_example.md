@@ -7,8 +7,6 @@ category: Tutoriais, Documentação
 
 ${toc}
 
----
-
 ## 1. Formatação Básica
 
 Texto normal com **negrito**, *itálico*, ***negrito e itálico***, ~~riscado~~, ==destacado==, H~2~O (subscrito), X^2^ (sobrescrito), e ++texto inserido++.

@@ -2,10 +2,22 @@ import sys, shutil, re, os, time, threading, unicodedata, importlib.util, subpro
 from pathlib import Path
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
-from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
 import http.server, socketserver
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
+# ============================================================================
+# CONFIGURAÇÃO
+# ============================================================================
+
+SITE_CONFIG = {
+    'output_dir': 'public',
+    'port': 8000,
+    'markdown_timeout': 30,
+    'enable_threading': False,  # Desabilitado para blogs pequenos
+    'debounce_delay': 1.0,  # Segundos para debounce no live reload
+}
 
 # ============================================================================
 # UTILIDADES
@@ -49,18 +61,22 @@ class Utils:
 
 def render_gfm(markdown_text: str) -> str:
     """Renderiza Markdown usando Node.js com markdown-it"""
-    process = subprocess.Popen(
-        ["node", "gfm.js"],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        encoding="utf-8"
-    )
-    html, err = process.communicate(markdown_text)
-    if process.returncode != 0:
-        raise RuntimeError(f"GFM Error: {err}")
-    return html
+    try:
+        process = subprocess.Popen(
+            ["node", "gfm.js"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8"
+        )
+        html, err = process.communicate(markdown_text, timeout=SITE_CONFIG['markdown_timeout'])
+        if process.returncode != 0:
+            raise RuntimeError(f"GFM Error: {err}")
+        return html
+    except subprocess.TimeoutExpired:
+        process.kill()
+        raise RuntimeError(f"GFM rendering timeout ({SITE_CONFIG['markdown_timeout']}s)")
 
 # ============================================================================
 # PROCESSADOR DE CONTEÚDO
@@ -101,6 +117,10 @@ class ContentProcessor:
         """Processa {{< shortcode >}} no markdown"""
         if not self.shortcodes:
             return content
+        
+        # Early return se não há shortcodes
+        if '{{<' not in content:
+            return content
 
         categories, posts = categories or [], posts or []
         
@@ -114,11 +134,10 @@ class ContentProcessor:
                 return match.group(0)
             args_str = tag.split(None, 1)[1] if len(tag.split()) > 1 else ""
             args = self._parse_args(args_str)
-            # Recursão: processa shortcodes dentro do conteúdo interno
             processed_inner = self.process_shortcodes(inner, categories, posts)
             return self.shortcodes[name](categories, posts, processed_inner, **args)
         
-        # Processa até não haver mais mudanças (evita loop infinito)
+        # Processa até não haver mais mudanças (máximo 10 iterações)
         prev, max_iterations = None, 10
         result = content
         for _ in range(max_iterations):
@@ -144,34 +163,32 @@ class ContentProcessor:
 
     def enhance_html(self, md_content, categories=None, posts=None):
         """Pipeline completo: shortcodes → markdown → HTML"""
-        # 1. Processa shortcodes no markdown
         content = self.process_shortcodes(md_content, categories, posts)
-        
-        # 2. Converte para HTML (markdown-it já processa imagens!)
-        html = render_gfm(content)
-        
-        # 3. Parse com BeautifulSoup (sem modificações de TOC)
-        soup = BeautifulSoup(html, "html.parser")
-        
-        return str(soup)
+        return render_gfm(content)
 
 # ============================================================================
 # GERADOR DE SITE ESTÁTICO
 # ============================================================================
 
 class StaticSiteGenerator:
-    def __init__(self, output_dir="public", port=8000):
+    def __init__(self, output_dir=None, port=None):
         self.root = Path.cwd()
         self.content_dir = self.root / "content"
         self.layouts_dir = self.root / "layouts"
-        self.output_dir = Path(output_dir)
-        self.port = port
+        self.output_dir = Path(output_dir or SITE_CONFIG['output_dir'])
+        self.port = port or SITE_CONFIG['port']
         self.processor = ContentProcessor(self.layouts_dir)
         self.env = Environment(loader=FileSystemLoader(self.layouts_dir))
         self.env.filters['normalize'] = Utils.normalize
         self.templates = {}
         self.pages = []
         self.index_page = None
+    
+    def _clear_template_cache(self):
+        """Limpa cache de templates (útil no live reload)"""
+        self.templates.clear()
+        self.env = Environment(loader=FileSystemLoader(self.layouts_dir))
+        self.env.filters['normalize'] = Utils.normalize
     
     def _write(self, path, content):
         """Escreve arquivo com encoding seguro"""
@@ -181,8 +198,12 @@ class StaticSiteGenerator:
     def _template(self, name):
         """Cache de templates Jinja2"""
         if name not in self.templates:
-            if not (self.layouts_dir / name).exists():
-                name = "single.html" if name != "single.html" else sys.exit(f"❌ Template {name} não encontrado")
+            template_path = self.layouts_dir / name
+            if not template_path.exists():
+                if name == "single.html":
+                    sys.exit(f"❌ Template crítico '{name}' não encontrado")
+                print(f"⚠️  Template '{name}' não encontrado, usando 'single.html'")
+                name = "single.html"
             self.templates[name] = self.env.get_template(name)
         return self.templates[name]
     
@@ -191,8 +212,8 @@ class StaticSiteGenerator:
         try:
             content = filepath.read_text(encoding="utf-8", errors="replace")
         except Exception as e:
-            print(f"⚠️  Erro ao ler {filepath}: {e}")
-            return {}
+            print(f"❌ ERRO CRÍTICO ao ler {filepath}: {e}")
+            sys.exit(1)
         
         fm, md = Utils.parse_frontmatter(content)
         html = self.processor.enhance_html(md, [], self.pages)
@@ -222,16 +243,20 @@ class StaticSiteGenerator:
         category_str = fm.get("category", "Sem Categoria" if is_article else "")
         categories = [cat.strip() for cat in category_str.split(",") if cat.strip()] if is_article else []
         
-        # Part (para séries)
+        # Part (CORRIGIDO: força conversão para int)
         part = fm.get("part")
-        if part is None and series:
-            if match := re.match(r'(\d+)-', filepath.stem):
-                part = int(match.group(1))
-            elif match := re.match(r'(\d+)\s*[-:]\s*(.*)', title):
-                part = int(match.group(1))
-                title = match.group(2).strip()
+        if series:
+            if part is not None:
+                # Garante conversão se vier do frontmatter
+                part = int(part)
             else:
-                part = 0
+                # Tenta extrair do nome do arquivo: "01-titulo.md" ou "1-titulo.md"
+                if match := re.match(r'^(\d+)-', filepath.stem):
+                    part = int(match.group(1))
+                else:
+                    part = 0
+        else:
+            part = 0
         
         return {
             "title": title,
@@ -242,7 +267,7 @@ class StaticSiteGenerator:
             "categories": categories,
             "category": category_str if is_article else "",
             "series": series,
-            "part": int(part) if part is not None else 0,
+            "part": part,
             "content": html,
             "output": output,
             "url": f"/{output}",
@@ -273,7 +298,8 @@ class StaticSiteGenerator:
                 fm, md = Utils.parse_frontmatter(content)
                 self.index_page = {"title": fm.get("title", "Página Inicial"), "content": md}
             except Exception as e:
-                print(f"⚠️  Erro ao ler _index.md: {e}")
+                print(f"❌ ERRO ao ler _index.md: {e}")
+                sys.exit(1)
         
         self.pages.sort(key=lambda x: x["timestamp"], reverse=True)
         return self.pages, self.index_page
@@ -295,7 +321,7 @@ class StaticSiteGenerator:
                 rel_path = src_file.relative_to(src_path)
                 dest_file = dest_path / rel_path
                 
-                # Copia apenas se mais novo
+                # Copia apenas se mais novo ou não existe
                 if not dest_file.exists() or src_file.stat().st_mtime > dest_file.stat().st_mtime:
                     dest_file.parent.mkdir(parents=True, exist_ok=True)
                     try:
@@ -303,21 +329,33 @@ class StaticSiteGenerator:
                     except PermissionError:
                         pass
 
+    def _render_page(self, page):
+        """Renderiza uma página individual"""
+        template = self._template("single.html" if page["is_article"] else "pages.html")
+        html = template.render(**page)
+        self._write(self.output_dir / page["output"] / "index.html", html)
+
     def generate(self):
         """Gera o site completo"""
+        # Limpa cache de templates para recarregar mudanças
+        self._clear_template_cache()
+        
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self._load_content()
         
         if not self.index_page:
-            return print("❌ Erro: _index.md não encontrado")
+            print("❌ Erro: _index.md não encontrado")
+            sys.exit(1)
         
         self._copy_static()
         
-        # Páginas individuais
-        for page in self.pages:
-            template = self._template("single.html" if page["is_article"] else "pages.html")
-            html = template.render(**page)
-            self._write(self.output_dir / page["output"] / "index.html", html)
+        # Páginas individuais (com ou sem threading)
+        if SITE_CONFIG['enable_threading']:
+            with ThreadPoolExecutor() as executor:
+                executor.map(self._render_page, self.pages)
+        else:
+            for page in self.pages:
+                self._render_page(page)
         
         # Dados agregados
         articles = [p for p in self.pages if p["is_article"]]
@@ -380,11 +418,23 @@ class StaticSiteGenerator:
         class Handler(FileSystemEventHandler):
             def __init__(self, gen):
                 self.gen = gen
+                self.last_modified = 0
             
             def on_modified(self, event):
-                if not event.is_directory:
-                    print(f"📝 Modificado: {event.src_path}")
+                if event.is_directory:
+                    return
+                
+                # Debouncing: ignora eventos muito próximos
+                now = time.time()
+                if now - self.last_modified < SITE_CONFIG['debounce_delay']:
+                    return
+                
+                self.last_modified = now
+                print(f"📝 Modificado: {event.src_path}")
+                try:
                     self.gen.generate()
+                except Exception as e:
+                    print(f"⚠️  Erro ao regenerar: {e}")
         
         os.chdir(self.output_dir)
         httpd = socketserver.TCPServer(("", self.port), http.server.SimpleHTTPRequestHandler)
@@ -410,8 +460,12 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description="Gerador de site estático")
     parser.add_argument('--serve', action='store_true', help='Servidor com live reload')
-    parser.add_argument('--port', type=int, default=8000, help='Porta (padrão: 8000)')
+    parser.add_argument('--port', type=int, default=SITE_CONFIG['port'], help=f"Porta (padrão: {SITE_CONFIG['port']})")
+    parser.add_argument('--threading', action='store_true', help='Ativa paralelização (útil para +100 páginas)')
     args = parser.parse_args()
+    
+    if args.threading:
+        SITE_CONFIG['enable_threading'] = True
     
     gen = StaticSiteGenerator("public", args.port)
     gen.generate()

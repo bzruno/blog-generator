@@ -1,27 +1,7 @@
-@import url('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css');
-@import url('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.css');
-
 /* ============================================================================
    MARKDOWN.CSS - Tokyo Night Style + Todos os Plugins
+   NOTA: Variáveis CSS agora estão em style.css (unificadas)
    ============================================================================ */
-
-:root {
-  --bg-base: #1a1b26;
-  --bg-elevated: #24283b;
-  --bg-elevated-hover: #2d3349;
-  --border: #414868;
-  --border-strong: #565f89;
-  --text-normal: #c0caf5;
-  --text-bright: #c9d6ff;
-  --text-muted: #a9b1d6;
-  --accent-blue: #7aa2f7;
-  --accent-cyan: #7dcfff;
-  --accent-green: #9ece6a;
-  --accent-orange: #e0af68;
-  --accent-purple: #bb9af7;
-  --accent-red: #f7768e;
-  --accent-yellow: #e0af68;
-}
 
 /* ============================================================================
    TIPOGRAFIA E TÍTULOS
@@ -44,6 +24,7 @@ h1 {
   font-size: 2em;
   font-weight: 700;
   text-align: center;
+  border-bottom: 2px solid var(--border-strong);
   padding-bottom: 0.5em;
   margin-top: 0;
 }
@@ -100,6 +81,10 @@ h4 a,
 h5 a,
 h6 a {
   color: inherit;
+  text-decoration: none;
+}
+
+h1 a:hover{
   text-decoration: none;
 }
 
@@ -477,9 +462,10 @@ table tbody tr:first-child td {
    IMAGENS E FIGURAS
    ============================================================================ */
 img {
-  max-width: 100%;
+  max-width: 75%;
   height: auto;
   display: block;
+  margin: 0 auto;
 }
 
 /* Implicit Figures (markdown-it-implicit-figures) */
@@ -536,7 +522,7 @@ figcaption {
 }
 
 .toc::before {
-  content: "Sumário";
+  content: "📑 Sumário";
   display: block;
   font-size: 1.25em;
   font-weight: 600;
@@ -707,12 +693,8 @@ details[open] summary {
   height: auto;
 }
 
-/* Estilização dos elementos Mermaid */
-.mermaid .node rect,
-.mermaid .node circle,
-.mermaid .node ellipse,
-.mermaid .node polygon,
-.mermaid .node path {
+/* Estilização dos elementos Mermaid (simplificado) */
+.mermaid .node * {
   fill: var(--bg-elevated) !important;
   stroke: var(--border-strong) !important;
   stroke-width: 2px !important;
@@ -776,7 +758,6 @@ details[open] summary {
 /* ============================================================================
    ATRIBUTOS CUSTOMIZADOS (markdown-it-attrs)
    ============================================================================ */
-/* Suporte para classes e IDs customizados */
 .text-center {
   text-align: center;
 }
