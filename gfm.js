@@ -13,8 +13,6 @@ import abbr from "markdown-it-abbr";
 import anchor from "markdown-it-anchor";
 import imsize from "markdown-it-imsize";
 import toc from "markdown-it-toc-done-right";
-import texmath from "markdown-it-texmath";
-import katex from "katex";
 import hljs from "highlight.js";
 import multimdTable from "markdown-it-multimd-table";
 import implicitFigures from "markdown-it-implicit-figures";
@@ -24,15 +22,6 @@ import kbd from "markdown-it-kbd";
 import spoiler from "markdown-it-spoiler";
 import emoji from "markdown-it-emoji";
 import attrs from "markdown-it-attrs";
-
-// Slugify customizado (mantido para âncoras internas)
-const customSlugify = s =>
-  s.toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 const md = new MarkdownIt({
   html: true,
@@ -51,7 +40,6 @@ const md = new MarkdownIt({
   }
 });
 
-// REMOVIDO: frontMatter plugin (agora feito apenas no Python)
 md.use(emoji)
   .use(taskLists, { enabled: true, label: true, labelAfter: true })
   .use(footnote)
@@ -65,7 +53,6 @@ md.use(emoji)
   .use(spoiler)
   .use(anchor, {
     level: [1, 2, 3, 4, 5, 6],
-    slugify: customSlugify,
     permalink: anchor.permalink.ariaHidden({
       symbol: "#",
       placement: "after",
@@ -76,13 +63,7 @@ md.use(emoji)
     containerClass: "toc",
     listType: "ol",
     level: [2, 3, 4],
-    slugify: customSlugify,
     format: (heading, htmlencode) => htmlencode(heading.replace(/^\d+\.\s*/, ""))
-  })
-  .use(texmath, {
-    engine: katex,
-    delimiters: "dollars",
-    katexOptions: { throwOnError: false, errorColor: "#cc0000", strict: false, trust: true }
   })
   .use(multimdTable, { multiline: true, rowspan: true, headerless: true })
   .use(implicitFigures, { figcaption: true })
@@ -94,41 +75,21 @@ md.use(emoji)
   })
   .use(attrs);
 
-// Plugin Mermaid customizado
-md.use((md) => {
-  const defaultFence = md.renderer.rules.fence;
-  
-  md.renderer.rules.fence = (tokens, idx, options, env, self) => {
-    const token = tokens[idx];
-    const info = token.info ? token.info.trim() : '';
-    const langName = info.split(/\s+/g)[0];
-    
-    if (langName === 'mermaid') {
-      const code = token.content.trim();
-      return `<div class="mermaid">${code}</div>`;
-    }
-    
-    return defaultFence ? defaultFence(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options);
-  };
-});
-
 // Containers customizados
-["note", "tip", "warning", "danger", "success", "info", "example", "caution", "important"].forEach(name => {
+const CONTAINERS = ["note", "tip", "warning", "danger", "success", "info", "example", "caution", "important"];
+CONTAINERS.forEach(name => {
   md.use(container, name, {
     validate: params => params.trim().startsWith(name),
     render(tokens, idx) {
-      const m = tokens[idx].info.trim().match(new RegExp(`^${name}\\s*(.*)$`));
       if (tokens[idx].nesting === 1) {
-        const title = m?.[1] ? md.utils.escapeHtml(m[1]) : "";
+        const m = tokens[idx].info.trim().match(new RegExp(`^${name}\\s*(.*)$`));
+        const title = m?.[1] || "";
         return `<div class="container-${name}">${title ? `<div class="container-title">${title}</div>` : ""}\n`;
       }
       return "</div>\n";
     }
   });
 });
-
-// REMOVIDO: Lazy loading automático (desnecessário para blog pessoal pequeno)
-// Se precisar no futuro, adicione manualmente nos templates
 
 // Blockquote com classe
 const defaultBlockquote = md.renderer.rules.blockquote_open || ((t, i, o, e, s) => s.renderToken(t, i, o));
@@ -143,6 +104,7 @@ md.renderer.rules.table_open = (t, i, o, e, s) => {
   t[i].attrPush(["class", "markdown-table"]);
   return `<div class="table-wrapper">${defaultTableOpen(t, i, o, e, s)}`;
 };
+
 const defaultTableClose = md.renderer.rules.table_close || ((t, i, o, e, s) => s.renderToken(t, i, o));
 md.renderer.rules.table_close = (t, i, o, e, s) => `${defaultTableClose(t, i, o, e, s)}</div>`;
 

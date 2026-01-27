@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<article>
+  <header>
+    <h1{% if category_id %} id="{{ category_id }}"{% endif %}><a href="/">{{ title }}</a></h1>
+    
+    {% if subtitle %}
+    <p class="subtitle">{{ subtitle }}</p>
+    {% endif %}
+    
+    {# Metadados de artigo (apenas se for artigo) #}
+    {% if is_article %}
+    <div class="article-meta">
+      <div>Data de publicação: <time datetime="{{ date }}">{{ formatted_date }}</time></div>
+      
+      {% if categories %}
+      <div>
+        Categoria: 
+        <nav aria-label="Categorias">
+          {% for cat in categories %}
+            <a href="/categorias/{{ cat | normalize }}" rel="tag">{{ cat }}</a>{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </nav>
+      </div>
+      {% endif %}
+      
+      {% if series %}
+      <div class="series-info">
+        Série: <a href="/series/{{ series | normalize }}">{{ series }}</a>
+        {% if part %}<span class="part-number">(Parte {{ part }})</span>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </header>
+  
+  <div class="content">
+    {{ content | safe }}
+  </div>
+</article>
+{% endblock %}

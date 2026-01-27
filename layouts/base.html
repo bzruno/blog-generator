@@ -10,12 +10,14 @@
 <body>
   <main class="markdown-body">
     {% block content %}{% endblock %}
+    
+    {% block footer %}
+    {% if not is_homepage %}
+    <div class="home-link">
+      <a href="/">Home</a>
+    </div>
+    {% endif %}
+    {% endblock %}
   </main>
-
-  <!-- Mermaid JS -->
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
-  </script>
 </body>
 </html>

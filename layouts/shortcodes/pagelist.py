@@ -1,12 +1,10 @@
-from typing import List, Dict
+"""Lista de páginas avulsas (não-artigos)."""
 
-def render(categories: List[str], posts: List[Dict[str, str]], content: str = "", **kwargs) -> str:
-    """Gera HTML para lista de páginas avulsas, sem categorias e sem série."""
-    
-    page_list = [
+def render(categories, posts, **kwargs):
+    """Gera lista HTML de páginas ordenadas alfabeticamente."""
+    items = [
         f'<li><a href="{p["url"]}">{p["title"]}</a></li>'
         for p in sorted(posts, key=lambda x: x["title"])
-        if not p.get("is_article", False) and not p.get("categories", []) and not p.get("series", "")
+        if not p.get("is_article", False)
     ]
-    
-    return f'<ul class="page-list">{"".join(page_list)}{content}</ul>'
+    return f'<ul class="page-list">{"".join(items)}</ul>'

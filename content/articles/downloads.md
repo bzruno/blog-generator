@@ -3,6 +3,8 @@ title: Programas
 subtitle: Tudo o que facilita minha vida nos compiuters
 ---
 
+[[toc]]
+
 ## Sistema Operacional
 
 Infelizmente, Windows 11.

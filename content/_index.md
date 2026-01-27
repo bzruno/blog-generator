@@ -16,27 +16,23 @@ E essa é minha página na World Wide Web. Aqui vou escrever sobre coisas que eu
 
 [![nocookie](/images/88x31/nocookie.png)](https://addons.mozilla.org/en-US/firefox/addon/istilldontcareaboutcookies/)
 
-[![piracy](/images/88x31/piracy.gif)](https://www.reddit.com/r/Piracy/wiki/megathread/)
+[![piracy](/images/88x31/piracy.gif)](https://shakil-shahadat.github.io/awesome-piracy/)
 
-[![privacy](/images/88x31/internetprivacy.gif)](https://shakil-shahadat.github.io/awesome-piracy/)
+[![privacy](/images/88x31/internetprivacy.gif)](https://www.privacyguides.org/en/tools/)
 
 [![speech](/images/88x31/speech.gif)](https://www.activism.net/cypherpunk/manifesto.html)
 
 </div>
 
-## Sobre mim
-
-{{< pagelist >}}
-
-## [🔗](/categorias/) Categorias
+## Categorias
 
 {{< category >}}
 
-## [🔗](/artigos/) Artigos
+## Artigos
 
 {{< artlist >}}
 
-## [🔗](/series/) Séries
+## Séries
 
 {{< serieslist >}}
 

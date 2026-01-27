@@ -47,7 +47,7 @@ def render(categories: List[str], posts: List[Dict[str, str]], content: str = ""
     html = '<div class="lifegrid-container" style="max-width:100%;margin:20px auto;text-align:center;font-family:Inter,system-ui,sans-serif;color:#a9b1d6;font-size:14px;">\n'
     html += '  <canvas id="lifeGrid" style="max-width:100%;height:auto;border-radius:6px;background:#16161e;"></canvas>\n'
     html += '  <div class="lifegrid-caption" style="margin-top:15px;font-family:Inter,system-ui,sans-serif;color:#a9b1d6;font-size:14px;line-height:1.6;">\n'
-    html += '    <div style="margin-bottom:12px;font-family:JetBrains Mono,monospace;color:#c0caf5;font-size:13px;">\n'
+    html += '    <div style="margin-bottom:12px;font-family:JetBrains,monospace;color:#c0caf5;font-size:13px;">\n'
     html += f'      Idade: {idade_atual:.1f} anos | '
     html += f'Semanas vividas: {lived_weeks:,} | '
     html += f'Semanas restantes: {total_weeks - lived_weeks:,}<br>\n'

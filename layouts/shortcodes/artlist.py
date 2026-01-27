@@ -1,19 +1,10 @@
-from typing import List, Dict
-from datetime import datetime
+"""Lista de artigos ordenada por data."""
 
-def render(categories: List[str], posts: List[Dict[str, str]], content: str = "", **kwargs) -> str:
-    """Gera HTML para lista de artigos, usando o timestamp pré-calculado."""
-    
-    # Filtra apenas artigos e ordena por timestamp
-    sorted_articles = sorted(
-        [p for p in posts if p.get("is_article", False)],
-        key=lambda x: x.get("timestamp", datetime.min),
-        reverse=True
-    )
-    
+def render(categories, posts, **kwargs):
+    """Gera lista HTML de artigos (mais recente primeiro)."""
     items = [
-        f'<li><span class="article-date">{p["formatted_date"]}</span> - <a href="{p["url"]}">{p["title"]}</a></li>'
-        for p in sorted_articles
+        f'<li><span class="article-date">{p["formatted_date"]}</span> - '
+        f'<a href="{p["url"]}">{p["title"]}</a></li>'
+        for p in sorted(posts, key=lambda x: x.get("timestamp"), reverse=True)
     ]
-    
-    return f'<ul class="article-list">{"".join(items)}{content}</ul>'
+    return f'<ul class="article-list">{"".join(items)}</ul>'

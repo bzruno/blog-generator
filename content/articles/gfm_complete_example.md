@@ -5,7 +5,7 @@ date: 2026-01-25
 category: Tutoriais, Documentação
 ---
 
-${toc}
+[[toc]]
 
 ## 1. Formatação Básica
 
