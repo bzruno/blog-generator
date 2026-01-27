@@ -825,6 +825,59 @@ figcaption {
 }
 
 /* ============================================================================
+   LIFEGRID
+   ============================================================================ */
+
+.lifegrid-container {
+  max-width: 100%;
+  margin: 20px auto;
+  text-align: center;
+}
+
+#lifeGrid {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  background: var(--bg-base);
+}
+
+.lifegrid-caption {
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.lifegrid-stats {
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-bright);
+  font-size: 13px;
+}
+
+.lifegrid-legends {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+
+/* ============================================================================
    EXTRAS
    ============================================================================ */
 
