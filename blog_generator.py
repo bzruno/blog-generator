@@ -17,7 +17,7 @@ def normalize(text):
     return re.sub(r'[-\s]+', '-', slug).strip('-')
 
 def format_date(date):
-    """Formata data: DD - Mês - YYYY"""
+    """DD - Mês - YYYY"""
     months = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
     return f"{date.day:02d} - {months[date.month-1]} - {date.year}"
 
@@ -27,38 +27,23 @@ def parse_frontmatter(content):
     if not lines or lines[0] != "---":
         return {}, content
     
-    fm = {}
     for i, line in enumerate(lines[1:], 1):
         if line.strip() == "---":
+            fm = {k.strip(): v.strip() for l in lines[1:i] if ":" in l for k, v in [l.split(":", 1)]}
             return fm, "\n".join(lines[i+1:]).strip()
-        if ":" in line:
-            k, v = line.split(":", 1)
-            fm[k.strip()] = v.strip()
     return {}, content
 
 def render_markdown(md):
     """Renderiza markdown via Node.js"""
-    result = subprocess.run(
-        ["node", "gfm.js"],
-        input=md,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        timeout=30
-    )
+    result = subprocess.run(["node", "gfm.js"], input=md, capture_output=True, text=True, encoding="utf-8", timeout=30)
     if result.returncode != 0:
         raise RuntimeError(f"Markdown error: {result.stderr}")
     return result.stdout
 
-# =============================================================================
-# SHORTCODES
-# =============================================================================
-
 def load_shortcodes():
-    """Carrega módulos Python de layouts/shortcodes/"""
+    """Carrega shortcodes de layouts/shortcodes/"""
     shortcodes = {}
     sc_dir = Path("layouts/shortcodes")
-    
     if not sc_dir.exists():
         return shortcodes
     
@@ -70,7 +55,6 @@ def load_shortcodes():
         spec.loader.exec_module(mod)
         if hasattr(mod, "render"):
             shortcodes[file.stem] = mod.render
-    
     return shortcodes
 
 def process_shortcodes(content, shortcodes, categories, posts):
@@ -81,31 +65,24 @@ def process_shortcodes(content, shortcodes, categories, posts):
     def parse_args(text):
         return {m[0]: m[2] for m in re.finditer(r'(\w+)=(["\']?)([^"\'\s]+)\2', text or "")}
     
-    # Paired: {{< name >}}...{{< /name >}}
+    # Paired shortcodes
     def replace_paired(m):
         tag, inner = m.groups()
-        parts = tag.split(None, 1)
-        name = parts[0]
+        name = tag.split()[0]
         if name not in shortcodes:
             return m.group(0)
-        args = parse_args(parts[1] if len(parts) > 1 else "")
+        args = parse_args(" ".join(tag.split()[1:])) if len(tag.split()) > 1 else {}
         return shortcodes[name](categories, posts, content=inner, **args)
     
-    content = re.sub(
-        r'{{<\s*([^/>]+?)\s*>}}(.*?){{<\s*/\1\s*>}}',
-        replace_paired,
-        content,
-        flags=re.DOTALL
-    )
+    content = re.sub(r'{{<\s*([^/>]+?)\s*>}}(.*?){{<\s*/\1\s*>}}', replace_paired, content, flags=re.DOTALL)
     
-    # Simple: {{< name >}}
+    # Simple shortcodes
     def replace_simple(m):
         tag = m.group(1).strip()
-        parts = tag.split(None, 1)
-        name = parts[0]
+        name = tag.split()[0]
         if name not in shortcodes:
             return m.group(0)
-        args = parse_args(parts[1] if len(parts) > 1 else "")
+        args = parse_args(" ".join(tag.split()[1:])) if len(tag.split()) > 1 else {}
         return shortcodes[name](categories, posts, **args)
     
     return re.sub(r'{{<\s*([^/>]+?)\s*>}}', replace_simple, content)
@@ -114,253 +91,211 @@ def process_shortcodes(content, shortcodes, categories, posts):
 # BUILDER
 # =============================================================================
 
+def load_content_file(filepath, is_article=True):
+    """Carrega um arquivo markdown e retorna dados estruturados"""
+    content = filepath.read_text(encoding="utf-8")
+    fm, md = parse_frontmatter(content)
+    
+    date_obj = datetime.strptime(fm.get("date", datetime.now().strftime("%Y-%m-%d")), "%Y-%m-%d") if "date" in fm else datetime.now()
+    series = fm.get("series", "")
+    clean_title = normalize(filepath.stem)
+    
+    page_data = {
+        "title": fm.get("title", filepath.stem.replace("-", " ").title()),
+        "subtitle": fm.get("subtitle", ""),
+        "raw_content": md,
+        "timestamp": date_obj,
+        "is_article": is_article,
+        "categories": []
+    }
+    
+    if is_article:
+        page_data.update({
+            "date": date_obj.strftime("%Y-%m-%d"),
+            "formatted_date": format_date(date_obj),
+            "categories": [c.strip() for c in fm.get("category", "Sem Categoria").split(",") if c.strip()],
+            "category": fm.get("category", "Sem Categoria"),
+            "series": series,
+            "part": int(fm.get("part", 0)) if series else 0,
+            "output": f"series/{normalize(series)}/{clean_title}" if series else f"artigos/{clean_title}",
+            "url": f"/series/{normalize(series)}/{clean_title}" if series else f"/artigos/{clean_title}"
+        })
+    else:
+        page_data.update({
+            "output": clean_title,
+            "url": f"/{clean_title}"
+        })
+    
+    return page_data
+
 def build_site():
     """Gera site estático"""
-    
-    # Setup
-    content_dir = Path("content")
-    layouts_dir = Path("layouts")
     output_dir = Path("public")
     
-    # Reset public/ preservando .git e mantendo index.html temporário
+    # Reset public/ (preserva .git)
     if output_dir.exists():
-        # Cria index.html temporário ANTES de limpar
+        # Cria index.html temporário ANTES de limpar para evitar directory listing
         temp_index = output_dir / "index.html"
         temp_index.write_text("<!DOCTYPE html><html><head><meta charset='utf-8'></head><body></body></html>", encoding="utf-8")
         
         # Limpa tudo exceto .git e index.html
         for item in output_dir.iterdir():
             if item.name not in [".git", "index.html"]:
-                if item.is_dir():
-                    shutil.rmtree(item)
-                else:
-                    item.unlink()
-    
+                shutil.rmtree(item) if item.is_dir() else item.unlink()
     output_dir.mkdir(exist_ok=True)
     
-    # Jinja2
-    env = Environment(loader=FileSystemLoader(layouts_dir))
+    # Setup
+    env = Environment(loader=FileSystemLoader("layouts"))
     env.filters['normalize'] = normalize
-    
-    # Shortcodes
     shortcodes = load_shortcodes()
     
-    # =============================================================================
-    # LOAD CONTENT
-    # =============================================================================
-    
+    # Carrega artigos e séries
     pages = []
-    
-    # Artigos e séries
-    for dir_path in [content_dir / "articles", content_dir / "series"]:
+    for dir_path in [Path("content/articles"), Path("content/series")]:
         if dir_path.exists():
             for filepath in dir_path.rglob("*.md"):
-                content = filepath.read_text(encoding="utf-8")
-                fm, md = parse_frontmatter(content)
-                
-                title = fm.get("title", filepath.stem.replace("-", " ").title())
-                series = fm.get("series", "")
-                date_str = fm.get("date", datetime.now().strftime("%Y-%m-%d"))
-                
-                try:
-                    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-                except:
-                    date_obj = datetime.now()
-                    date_str = date_obj.strftime("%Y-%m-%d")
-                
-                category_str = fm.get("category", "Sem Categoria")
-                categories = [c.strip() for c in category_str.split(",") if c.strip()]
-                
-                # URL - sempre em artigos/ a menos que tenha series no frontmatter
-                clean_title = normalize(filepath.stem)
-                if series:
-                    output = f"series/{normalize(series)}/{clean_title}"
-                else:
-                    output = f"artigos/{clean_title}"
-                
-                pages.append({
-                    "title": title,
-                    "subtitle": fm.get("subtitle", ""),
-                    "date": date_str,
-                    "timestamp": date_obj,
-                    "formatted_date": format_date(date_obj),
-                    "categories": categories,
-                    "category": category_str,
-                    "series": series,
-                    "part": int(fm.get("part", 0)) if series else 0,
-                    "raw_content": md,
-                    "output": output,
-                    "url": f"/{output}",
-                    "is_article": True
-                })
+                pages.append(load_content_file(filepath, is_article=True))
     
-    # Páginas avulsas
-    for filepath in content_dir.glob("*.md"):
+    # Carrega páginas avulsas
+    for filepath in Path("content").glob("*.md"):
         if filepath.name != "_index.md":
-            content = filepath.read_text(encoding="utf-8")
-            fm, md = parse_frontmatter(content)
-            
-            title = fm.get("title", filepath.stem.replace("-", " ").title())
-            clean_title = normalize(filepath.stem)
-            
-            pages.append({
-                "title": title,
-                "subtitle": "",
-                "raw_content": md,
-                "output": clean_title,
-                "url": f"/{clean_title}",
-                "is_article": False,
-                "categories": [],
-                "timestamp": datetime.now()
-            })
+            pages.append(load_content_file(filepath, is_article=False))
     
     # Index
-    index_path = content_dir / "_index.md"
-    if not index_path.exists():
-        raise FileNotFoundError("_index.md não encontrado")
+    index_content = (Path("content") / "_index.md").read_text(encoding="utf-8")
+    fm, md = parse_frontmatter(index_content)
     
-    content = index_path.read_text(encoding="utf-8")
-    fm, md = parse_frontmatter(content)
-    index_page = {"title": fm.get("title", "Página Inicial"), "raw_content": md}
-    
-    # Ordena por data
+    # Organiza dados
     pages.sort(key=lambda x: x["timestamp"], reverse=True)
-    
-    # =============================================================================
-    # PROCESS
-    # =============================================================================
-    
     articles = [p for p in pages if p["is_article"]]
     all_categories = sorted(set(cat for p in articles for cat in p["categories"]))
     
-    # Páginas individuais
+    # Renderiza todas as páginas
     for page in pages:
-        content_with_shortcodes = process_shortcodes(
-            page["raw_content"], 
-            shortcodes, 
-            all_categories, 
-            articles
-        )
-        html = render_markdown(content_with_shortcodes)
-        page["content"] = html
-        
-        rendered = env.get_template("page.html").render(**page)
+        page["content"] = render_markdown(process_shortcodes(page["raw_content"], shortcodes, all_categories, articles))
         output_path = output_dir / page["output"] / "index.html"
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(rendered, encoding="utf-8")
+        output_path.write_text(env.get_template("page.html").render(**page), encoding="utf-8")
     
     # Index
-    content_with_shortcodes = process_shortcodes(
-        index_page["raw_content"], 
-        shortcodes, 
-        all_categories, 
-        articles
+    (output_dir / "index.html").write_text(
+        env.get_template("page.html").render(
+            title=fm.get("title", "Página Inicial"),
+            content=render_markdown(process_shortcodes(md, shortcodes, all_categories, articles)),
+            is_article=False,
+            is_homepage=True
+        ),
+        encoding="utf-8"
     )
-    html_content = render_markdown(content_with_shortcodes)
     
-    rendered = env.get_template("page.html").render(
-        title=index_page["title"],
-        content=html_content,
-        is_article=False,
-        is_homepage=True
-    )
-    (output_dir / "index.html").write_text(rendered, encoding="utf-8")
-    
-    # Páginas especiais
+    # Páginas especiais (páginas, artigos, séries)
     pages_avulsas = [p for p in pages if not p["is_article"]]
-    
-    if "pagelist" in shortcodes:
-        content = shortcodes["pagelist"]([], pages_avulsas)
-        rendered = env.get_template("page.html").render(
-            title="Páginas",
-            content=content,
-            is_article=False
-        )
-        path = output_dir / "paginas" / "index.html"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(rendered, encoding="utf-8")
-    
-    if "artlist" in shortcodes:
-        content = shortcodes["artlist"]([], articles)
-        rendered = env.get_template("page.html").render(
-            title="Artigos",
-            content=content,
-            is_article=False
-        )
-        path = output_dir / "artigos" / "index.html"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(rendered, encoding="utf-8")
-    
-    if "serieslist" in shortcodes:
-        content = shortcodes["serieslist"]([], articles)
-        rendered = env.get_template("page.html").render(
-            title="Séries",
-            content=content,
-            is_article=False
-        )
-        path = output_dir / "series" / "index.html"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(rendered, encoding="utf-8")
+    for shortcode_name, data, title, path in [
+        ("pagelist", pages_avulsas, "Páginas", "paginas"),
+        ("artlist", articles, "Artigos", "artigos"),
+        ("serieslist", articles, "Séries", "series"),
+    ]:
+        if shortcode_name in shortcodes:
+            output_path = output_dir / path / "index.html"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(
+                env.get_template("page.html").render(title=title, content=shortcodes[shortcode_name]([], data), is_article=False),
+                encoding="utf-8"
+            )
     
     # Categorias
     if all_categories and "category" in shortcodes:
-        content = shortcodes["category"](all_categories, articles)
-        rendered = env.get_template("page.html").render(
-            title="Categorias",
-            content=content,
-            is_article=False
-        )
+        # Página de todas as categorias
         path = output_dir / "categorias" / "index.html"
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(rendered, encoding="utf-8")
+        path.write_text(
+            env.get_template("page.html").render(title="Categorias", content=shortcodes["category"](all_categories, articles), is_article=False),
+            encoding="utf-8"
+        )
         
-        # Páginas individuais de categoria
+        # Página individual de cada categoria
         if "artlist" in shortcodes:
             for cat in all_categories:
                 cat_posts = [p for p in articles if cat in p["categories"]]
                 if cat_posts:
-                    content = shortcodes["artlist"]([cat], cat_posts)
-                    rendered = env.get_template("page.html").render(
-                        title=cat,
-                        content=content,
-                        is_article=False,
-                        category_id=f"tag_{normalize(cat)}"
-                    )
                     path = output_dir / "categorias" / normalize(cat) / "index.html"
                     path.parent.mkdir(parents=True, exist_ok=True)
-                    path.write_text(rendered, encoding="utf-8")
+                    path.write_text(
+                        env.get_template("page.html").render(
+                            title=cat,
+                            content=shortcodes["artlist"]([cat], cat_posts),
+                            is_article=False,
+                            category_id=f"tag_{normalize(cat)}"
+                        ),
+                        encoding="utf-8"
+                    )
     
     # Séries individuais
     series_list = sorted(set(p["series"] for p in articles if p["series"]))
     if series_list and "artlist" in shortcodes:
         for serie in series_list:
-            posts = sorted(
-                [p for p in articles if p["series"] == serie],
-                key=lambda x: (x["part"], x["timestamp"])
-            )
+            posts = sorted([p for p in articles if p["series"] == serie], key=lambda x: (x["part"], x["timestamp"]))
             if posts:
-                content = shortcodes["artlist"]([], posts)
-                rendered = env.get_template("page.html").render(
-                    title=serie,
-                    content=content,
-                    is_article=False
-                )
                 path = output_dir / "series" / normalize(serie) / "index.html"
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(rendered, encoding="utf-8")
+                path.write_text(
+                    env.get_template("page.html").render(title=serie, content=shortcodes["artlist"]([], posts), is_article=False),
+                    encoding="utf-8"
+                )
     
     # 404
-    rendered = env.get_template("404.html").render()
-    (output_dir / "404.html").write_text(rendered, encoding="utf-8")
+    (output_dir / "404.html").write_text(env.get_template("404.html").render(), encoding="utf-8")
     
     # Copia estáticos
     for name in ["static", "images"]:
-        src = Path(name)
-        dest = output_dir / name
+        src, dest = Path(name), output_dir / name
         if src.exists():
             if dest.exists():
                 shutil.rmtree(dest)
             shutil.copytree(src, dest)
+    
+    # Copia .domains se existir
+    domains_file = Path(".domains")
+    if domains_file.exists():
+        shutil.copy(domains_file, output_dir / ".domains")
 
 if __name__ == "__main__":
-    build_site()
+    import sys
+    
+    if len(sys.argv) > 1 and sys.argv[1] == "watch":
+        import time
+        import hashlib
+        
+        def get_files_hash():
+            hash_md5 = hashlib.md5()
+            for directory in ["content", "layouts", "static", "images"]:
+                dir_path = Path(directory)
+                if not dir_path.exists():
+                    continue
+                for filepath in dir_path.rglob("*"):
+                    if filepath.is_file() and not any(x in str(filepath) for x in ['__pycache__', '.pyc', 'public']):
+                        try:
+                            hash_md5.update(str(filepath).encode())
+                            hash_md5.update(filepath.read_bytes())
+                        except:
+                            pass
+            return hash_md5.hexdigest()
+        
+        build_site()
+        print("Site gerado")
+        
+        last_hash = get_files_hash()
+        
+        try:
+            while True:
+                time.sleep(1)
+                current_hash = get_files_hash()
+                if current_hash != last_hash:
+                    build_site()
+                    print("Site gerado")
+                    last_hash = current_hash
+        except KeyboardInterrupt:
+            pass
+    else:
+        build_site()
+        print("Site gerado")

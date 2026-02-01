@@ -1,5 +1,5 @@
 /* ============================================================================
-   STYLE.CSS - Tokyo Night Theme (Otimizado)
+   STYLE.CSS - Tokyo Night Theme
    ============================================================================ */
 
 :root {
@@ -21,9 +21,8 @@
   --accent-red: #f7768e;
   
   /* Fontes */
-  --font-base: 'Inter', Arial, sans-serif;
-  --font-heading: 'Inter-Medium';
-  --font-mono: 'JetBrains', monospace;
+  --font-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
   
   /* Espaçamento */
   --space-sm: 0.5em;
@@ -49,27 +48,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-weight: 400;
-  font-display: swap;
-  src: url('/static/fonts/Inter-Regular.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Inter-Medium';
-  font-weight: 400;
-  font-display: swap;
-  src: url('/static/fonts/Inter-Medium.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'JetBrains';
-  font-weight: 400;
-  font-display: swap;
-  src: url('/static/fonts/JetBrainsMono-Regular.woff2') format('woff2');
 }
 
 body {
@@ -100,7 +78,7 @@ main {
    ============================================================================ */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+  font-family: var(--font-base);
   line-height: 1.3;
   color: var(--text-bright);
   margin: var(--space-lg) 0 var(--space-sm);
@@ -717,7 +695,6 @@ figcaption {
    LISTAS DE CONTEÚDO
    ============================================================================ */
 
-/* Classe unificada para todas as listas de conteúdo */
 .article-list,
 .page-list,
 .series-list {
@@ -904,7 +881,7 @@ html {
   body::before {
     content: "";
     position: fixed;
-    inset: -100px 0; /* Offset para animação contínua */
+    inset: -100px 0;
     background: repeating-linear-gradient(to bottom,
       transparent 0,
       rgba(0, 0, 0, 0.21) 1px,

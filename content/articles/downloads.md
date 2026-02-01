@@ -13,7 +13,7 @@ Infelizmente, Windows 11.
 
 Como eu sou um cara que ama armazenar tudo no meu HD, baixo muitas mídias para manter salvas para mim. Não dependo de serviços de streaming/nuvem para nada. Para isso uso alguns programas.
 
-![ ](/images/datawojak.png)
+![ ](/images/G_2rL_HbUAIQKGM.jpg)
 
 ### qBitorrent + plugins de busca
 

@@ -40,6 +40,7 @@ const md = new MarkdownIt({
   }
 });
 
+// Plugins
 md.use(emoji)
   .use(taskLists, { enabled: true, label: true, labelAfter: true })
   .use(footnote)
@@ -76,14 +77,12 @@ md.use(emoji)
   .use(attrs);
 
 // Containers customizados
-const CONTAINERS = ["note", "tip", "warning", "danger", "success", "info", "example", "caution", "important"];
-CONTAINERS.forEach(name => {
+["note", "tip", "warning", "danger", "success", "info", "example", "caution", "important"].forEach(name => {
   md.use(container, name, {
     validate: params => params.trim().startsWith(name),
     render(tokens, idx) {
       if (tokens[idx].nesting === 1) {
-        const m = tokens[idx].info.trim().match(new RegExp(`^${name}\\s*(.*)$`));
-        const title = m?.[1] || "";
+        const title = tokens[idx].info.trim().match(new RegExp(`^${name}\\s*(.*)$`))?.[1] || "";
         return `<div class="container-${name}">${title ? `<div class="container-title">${title}</div>` : ""}\n`;
       }
       return "</div>\n";
@@ -108,11 +107,10 @@ md.renderer.rules.table_open = (t, i, o, e, s) => {
 const defaultTableClose = md.renderer.rules.table_close || ((t, i, o, e, s) => s.renderToken(t, i, o));
 md.renderer.rules.table_close = (t, i, o, e, s) => `${defaultTableClose(t, i, o, e, s)}</div>`;
 
-// Entrada/saída
+// I/O
 try {
   const input = fs.readFileSync(0, "utf8");
-  const html = md.render(input);
-  process.stdout.write(html);
+  process.stdout.write(md.render(input));
 } catch (err) {
   process.stderr.write(`Erro ao processar Markdown: ${err.message}\n`);
   process.exit(1);
