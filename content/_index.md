@@ -24,9 +24,12 @@ E essa é minha página na World Wide Web. Aqui vou escrever sobre coisas que eu
 
 </div>
 
-## Categorias
+## Coisas legais
 
-{{< category >}}
+| Conteúdo | Tema | 
+|:---------|:------|
+| :bar_chart: [Projetos](/projetos) | Confira meus projetos |
+| :person_curly_hair: [Sobre mim](/teste) | Quem sou eu |
 
 ## Artigos
 
@@ -35,6 +38,10 @@ E essa é minha página na World Wide Web. Aqui vou escrever sobre coisas que eu
 ## Séries
 
 {{< serieslist >}}
+
+## Categorias
+
+{{< category >}}
 
 ## Vida em semanas
 

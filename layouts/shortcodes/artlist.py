@@ -1,10 +1,8 @@
-"""Lista de artigos ordenada por data."""
-
-def render(categories, posts, **kwargs):
-    """Gera lista HTML de artigos (mais recente primeiro)."""
-    items = [
-        f'<li><span class="article-date">{p["formatted_date"]}</span> - '
-        f'<a href="{p["url"]}">{p["title"]}</a></li>'
-        for p in sorted(posts, key=lambda x: x.get("timestamp"), reverse=True)
-    ]
-    return f'<ul class="article-list">{"".join(items)}</ul>'
+# artlist.py
+"""Lista de artigos ordenada por data (mais recente primeiro)."""
+def render(_, posts):
+    items = ''.join(f'<li><span class="article-date">{p["formatted_date"]}</span> - '
+                    f'<a href="{p["url"]}">{p["title"]}</a></li>'
+                    for p in sorted((p for p in posts if p.get("is_article", False)), 
+                                   key=lambda x: x.get("timestamp"), reverse=True))
+    return f'<ul class="article-list">{items}</ul>'

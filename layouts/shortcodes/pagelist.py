@@ -1,10 +1,7 @@
-"""Lista de páginas avulsas (não-artigos)."""
-
-def render(categories, posts, **kwargs):
-    """Gera lista HTML de páginas ordenadas alfabeticamente."""
-    items = [
-        f'<li><a href="{p["url"]}">{p["title"]}</a></li>'
-        for p in sorted(posts, key=lambda x: x["title"])
-        if not p.get("is_article", False)
-    ]
-    return f'<ul class="page-list">{"".join(items)}</ul>'
+# pagelist.py
+"""Lista de páginas avulsas (não-artigos) ordenada alfabeticamente."""
+def render(_, posts):
+    items = ''.join(f'<li><a href="{p["url"]}">{p["title"]}</a></li>'
+                    for p in sorted((p for p in posts if not p.get("is_article", False)), 
+                                   key=lambda x: x.get("title", "")))
+    return f'<ul class="page-list">{items}</ul>'

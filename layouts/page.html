@@ -5,7 +5,7 @@
 {% block content %}
 <article>
   <header>
-    <h1{% if category_id %} id="{{ category_id }}"{% endif %}><a href="/">{{ title }}</a></h1>
+    <h1{% if category_id is defined and category_id %} id="{{ category_id }}"{% endif %}><a href="/">{{ title }}</a></h1>
     
     {% if subtitle %}
     <p class="subtitle">{{ subtitle }}</p>
